@@ -5,6 +5,17 @@ const fine = matchMedia('(pointer: fine)').matches;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const root = document.documentElement;
 
+/* ---------- Cinematic opening (once per visit; any input skips it) ---------- */
+try {
+  if (!reduce && !sessionStorage.getItem('seen-intro')) {
+    root.classList.add('intro');
+    sessionStorage.setItem('seen-intro', '1');
+    const end = () => root.classList.remove('intro');
+    setTimeout(end, 2400);
+    ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(ev => addEventListener(ev, end, { once: true, passive: true }));
+  }
+} catch {}
+
 /* ---------- Current section highlights the nav ---------- */
 const navFor = id => ({ 'what-i-do': 'great-hall', 'sorting-hat': 'room-of-requirement' }[id] || id);
 const sectionObs = new IntersectionObserver(entries => {
@@ -133,6 +144,22 @@ hat.addEventListener('click', async () => {
 
 /* ---------- Wand: a torch that lights the castle and the star charts ---------- */
 const wand = $('.wand'), castleLit = $('.castle-lit');
+const artSecs = $$('main > section:not(.hero)');
+// point every on-screen layer that the wand lights at the same viewport spot
+function light(x, y) {
+  root.style.setProperty('--mx', x + 'px');
+  root.style.setProperty('--my', y + 'px');
+  if (castleLit) {
+    const r = castleLit.getBoundingClientRect();
+    if (r.bottom > 0) { castleLit.style.setProperty('--hx', x - r.left + 'px'); castleLit.style.setProperty('--hy', y - r.top + 'px'); }
+  }
+  for (const sec of artSecs) {
+    const r = sec.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > innerHeight) continue;
+    sec.style.setProperty('--lx', x - r.left + 'px');
+    sec.style.setProperty('--ly', y - r.top + 'px');
+  }
+}
 // touch screens: no wand, so a soft light drifts slowly over the castle and the star charts
 if (!fine && !reduce) {
   root.classList.add('drift-on');
@@ -142,12 +169,7 @@ if (!fine && !reduce) {
       last = now;
       const t = now / 1000;
       const mx = innerWidth * (0.5 + 0.38 * Math.sin(t * 0.23)), my = innerHeight * (0.55 + 0.25 * Math.sin(t * 0.31 + 1));
-      root.style.setProperty('--mx', mx + 'px');
-      root.style.setProperty('--my', my + 'px');
-      if (castleLit) {
-        const r = castleLit.getBoundingClientRect();
-        if (r.bottom > 0) { castleLit.style.setProperty('--hx', mx - r.left + 'px'); castleLit.style.setProperty('--hy', my - r.top + 'px'); }
-      }
+      light(mx, my);
     }
     requestAnimationFrame(drift);
   };
@@ -161,13 +183,7 @@ if (fine) {
     lastX = x;
     // tip of the wand sits exactly on the pointer
     wand.style.transform = `translate(${x - 13}px, ${y - 2.2}px) rotate(${-32 + tilt}deg)`;
-    root.style.setProperty('--mx', x + 'px');
-    root.style.setProperty('--my', y + 'px');
-    if (castleLit) {
-      const r = castleLit.getBoundingClientRect();
-      castleLit.style.setProperty('--hx', x - r.left + 'px');
-      castleLit.style.setProperty('--hy', y - r.top + 'px');
-    }
+    light(x, y);
     if (Math.abs(tilt) > 0.3) queue();
   };
   const queue = () => { if (!queued) { queued = true; requestAnimationFrame(frame); } };
@@ -244,8 +260,9 @@ async function goTo(spot) {
   owl.classList.add('away');
   spot.append(owl);
   const b = box(owl);
-  const lift = Math.min(160, Math.abs(b.y - a.y) * 0.3 + 60);
-  await leg(flyer, [a, { x: a.x, y: a.y - lift }, { x: b.x, y: b.y - lift }, b], Math.max(a.w, 46), Math.max(b.w, 1), 1100, 0.5);
+  // glide in from the nearer screen edge, above the heading, so it never crosses the content
+  const fromRight = b.x > W / 2, sx = fromRight ? W + 60 : -60, sy = Math.max(30, b.y - 150);
+  await leg(flyer, [{ x: sx, y: sy }, { x: sx * 0.6 + b.x * 0.4, y: sy - 20 }, { x: b.x + (fromRight ? 90 : -90), y: b.y - 50 }, b], b.w * 0.9, b.w, 1000, 0.35);
   flyer.remove();
   owl.classList.remove('away');
   owlBusy = false;
@@ -281,8 +298,8 @@ $('[data-send-owl]').addEventListener('click', async e => {
 /* ---------- Marauder's-Map walker: footprints cross the top as you scroll ---------- */
 const walker = $('.walker'), prints = $('.prints', walker), tag = $('.tag', walker), roomEl = $('.room', walker);
 const corridor = $('.corridor', walker);
-const STEP = 46;
-let lastY = scrollY, acc = 0, side = 1, idle;
+const STEP = 16;
+let lastPrintX = null, side = 1, idle;
 function placeTicks() {
   const max = root.scrollHeight - innerHeight;
   corridor.replaceChildren(...$$('main > section:not(.hero)').map(sec => {
@@ -296,20 +313,20 @@ function walkerX() {
   return (max > 0 ? scrollY / max : 0) * (walker.clientWidth - 8);
 }
 function onWalk() {
-  const dy = scrollY - lastY;
-  lastY = scrollY;
   const x = walkerX();
+  if (lastPrintX === null) lastPrintX = x;
   tag.style.left = x + 'px';
-  acc += Math.abs(dy);
-  while (acc >= STEP) {
-    acc -= STEP;
+  // one print every STEP px of walking along the corridor, left/right feet alternating
+  const dir = Math.sign(x - lastPrintX);
+  while (Math.abs(x - lastPrintX) >= STEP) {
+    lastPrintX += dir * STEP;
     side = -side;
     prints.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 20 40"><use href="#foot"/></svg>');
     const f = prints.lastChild;
-    f.style.left = x + 'px';
+    f.style.left = lastPrintX + 'px';
     f.style.top = 12 + side * 4 + 'px';
-    f.style.transform = `rotate(${dy >= 0 ? 90 : -90}deg)`;
-    if (prints.children.length > 18) prints.firstChild.remove();
+    f.style.transform = `rotate(${dir > 0 ? 90 : -90}deg)`;
+    if (prints.children.length > 14) prints.firstChild.remove();
   }
   walker.classList.add('moving');
   clearTimeout(idle);
@@ -325,6 +342,130 @@ const roomObs = new IntersectionObserver(entries => {
   for (const e of entries) if (e.isIntersecting) roomEl.textContent = e.target.dataset.room;
 }, { rootMargin: '-45% 0px -50% 0px' });
 $$('main > section').forEach(s => roomObs.observe(s));
+
+/* ---------- Launch Cadence: the golden rocket lifts off when the wand touches it ---------- */
+const pad = $('.rocket-pad'), rocket = $('.rocket', pad);
+let launching = false;
+function launch() {
+  if (launching || reduce) return;
+  launching = true;
+  rocket.classList.add('launch');
+  const t0 = performance.now();
+  const trail = now => {
+    const r = rocket.getBoundingClientRect();
+    for (let i = 0; i < 2; i++)
+      spawn(r.left + r.width / 2 + (Math.random() - 0.5) * 6, r.bottom - 6, (Math.random() - 0.5) * 0.8, 1 + Math.random() * 1.4, 30 + Math.random() * 25, 0.6 + Math.random() * 1.4);
+    if (now - t0 < 1150) requestAnimationFrame(trail);
+  };
+  requestAnimationFrame(trail);
+  setTimeout(() => rocket.classList.replace('launch', 'return'), 1900);
+  setTimeout(() => { rocket.classList.remove('return'); launching = false; }, 2900);
+}
+pad.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') launch(); });
+pad.addEventListener('click', launch);
+
+/* ---------- Spellbook: each spell shows where it was cast (only real project tags) ---------- */
+const castIn = {
+  Python: ['JobGenie', 'PhoniX', 'Session-Based Recommender', 'IBM internship'], Java: ['Library Management System'],
+  SQL: ['Library Management System'], Swing: ['Library Management System'], PyTorch: ['PhoniX', 'Session-Based Recommender', 'IBM internship'],
+  CNN: ['IBM internship'], 'GRU / LSTM': ['Session-Based Recommender (GRU)'], KAN: ['Session-Based Recommender'],
+  'Gemini API': ['JobGenie'], RAG: ['JobGenie'], FastAPI: ['JobGenie'], PostgreSQL: ['JobGenie'], Docker: ['JobGenie'], Streamlit: ['IBM internship'],
+};
+$$('.panel').forEach(panel => {
+  const out = document.createElement('p');
+  out.className = 'proof';
+  out.setAttribute('aria-live', 'polite');
+  out.textContent = '✦ marks a spell I’ve used in a project below — tap one to see where.';
+  panel.append(out);
+  $$('.spells li', panel).forEach(li => {
+    const name = li.textContent.trim(), where = castIn[name];
+    if (!where) return;
+    li.innerHTML = `<button type="button" class="spell" aria-pressed="false">${li.innerHTML}</button>`;
+    $('button', li).addEventListener('click', e => {
+      $$('.spell', panel).forEach(b => b.setAttribute('aria-pressed', b === e.currentTarget));
+      const links = where.map(w => `<a href="${w.startsWith('IBM') ? '#journey' : '#room-of-requirement'}">${w}</a>`).join(' · ');
+      out.innerHTML = `<strong>${name}</strong> was cast in: ${links}`;
+    });
+  });
+});
+
+/* ---------- House Points Ledger: LeetCode / GitHub heatmap from data/activity.json (updated daily) ---------- */
+const fmt = d => d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+const iso = d => d.toISOString().slice(0, 10);
+function streaks(days, end) {
+  let cur = 0, best = 0, run = 0;
+  const keys = Object.keys(days).filter(k => days[k] > 0).sort();
+  for (let i = 0; i < keys.length; i++) {
+    run = i && (new Date(keys[i]) - new Date(keys[i - 1])) / 864e5 === 1 ? run + 1 : 1;
+    best = Math.max(best, run);
+  }
+  // today may not be logged yet, so the current streak may end yesterday
+  const d = new Date(end);
+  if (!(days[iso(d)] > 0)) d.setUTCDate(d.getUTCDate() - 1);
+  for (; days[iso(d)] > 0; d.setUTCDate(d.getUTCDate() - 1)) cur++;
+  return { cur, best };
+}
+function drawLedger(data, src) {
+  const set = data[src], sum = $('.ledger-sum');
+  if (!set) { sum.textContent = 'The ledger is closed today — try again later.'; return; }
+  const end = new Date(data.updated + 'T00:00:00Z');
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - 7 * 52 - end.getUTCDay());
+  const grid = $('.ledger-grid'), months = $('.ledger-months');
+  grid.replaceChildren(); months.replaceChildren();
+  let total = 0, week = 0;
+  for (const d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    const n = set.days[iso(d)] || 0;
+    total += n;
+    const cell = document.createElement('i');
+    cell.className = 'l' + (n === 0 ? 0 : n < 3 ? 1 : n < 6 ? 2 : n < 10 ? 3 : 4);
+    cell.title = `${n} ${src === 'leetcode' ? 'submission' : 'contribution'}${n === 1 ? '' : 's'} · ${fmt(d)}`;
+    grid.append(cell);
+    if (d.getUTCDay() === 0 && d.getUTCDate() <= 7) {
+      const m = document.createElement('span');
+      m.textContent = d.toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' });
+      m.style.left = week * 16 + 'px';
+      months.append(m);
+    }
+    if (d.getUTCDay() === 6) week++;
+  }
+  const { cur, best } = streaks(set.days, end);
+  if (src === 'leetcode') {
+    const s = set.solved || {};
+    sum.innerHTML = `<strong>${s.All}</strong> problems solved (${s.Easy} Easy · ${s.Medium} Medium · ${s.Hard} Hard) · <strong>${total}</strong> submissions in the past year · longest streak <strong>${best}</strong> days${cur ? ` · current streak ${cur}` : ''}`;
+  } else {
+    sum.innerHTML = `<strong>${total}</strong> contributions on GitHub in the past year · longest streak <strong>${best}</strong> days`;
+  }
+  grid.setAttribute('aria-label', sum.textContent);
+  $('.ledger-upd').textContent = 'Updated ' + fmt(end);
+  const sc = $('.ledger-scroll');
+  sc.scrollLeft = sc.scrollWidth;
+}
+fetch('data/activity.json').then(r => r.json()).then(data => {
+  if (data.leetcode?.solved?.All) $('[data-lc-solved]').textContent = data.leetcode.solved.All;
+  drawLedger(data, 'leetcode');
+  $$('.ledger-src button').forEach(b => b.addEventListener('click', () => {
+    $$('.ledger-src button').forEach(x => x.setAttribute('aria-pressed', x === b));
+    drawLedger(data, b.dataset.src);
+  }));
+}).catch(() => { $('.ledger-sum').textContent = 'The ledger is closed today — try again later.'; });
+
+/* ---------- Live GitHub stats (public API; falls back to the static text) ---------- */
+fetch('https://api.github.com/users/devSaksham/repos?per_page=100&type=owner').then(r => r.ok ? r.json() : Promise.reject()).then(repos => {
+  const own = repos.filter(r => !r.fork), langs = {};
+  own.forEach(r => { if (r.language) langs[r.language] = (langs[r.language] || 0) + 1; });
+  const top = Object.entries(langs).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([l]) => l);
+  $('[data-gh-repos]').textContent = `${own.length} repos`;
+  if (top.length) $('[data-gh-sub]').textContent = `mostly ${top.join(' · ')} · @devSaksham`;
+}).catch(() => {});
+
+/* ---------- A note for whoever opens the console ---------- */
+console.log(`%c
+   ,_,
+  (O,O)   Hello, fellow developer.
+  (   )   This site is hand-written HTML, CSS and JS, no framework.
+  -"-"-   Hiring, or want to build something? reach.saksham.agrawal@gmail.com
+`, 'font-family: monospace; color: #c9a45c; font-size: 12px;');
 
 /* ---------- Copy email ---------- */
 const copied = $('.copied');
