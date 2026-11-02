@@ -27,6 +27,24 @@ def leetcode():
     return {"days": days, "solved": solved, "streak": cal["streak"], "activeDays": cal["totalActiveDays"]}
 
 
+def contest():
+    q = """query($u:String!){
+      userContestRanking(username:$u){rating attendedContestsCount globalRanking topPercentage}
+      userContestRankingHistory(username:$u){attended rating ranking contest{title startTime}}}"""
+    req = urllib.request.Request(
+        "https://leetcode.com/graphql",
+        data=json.dumps({"query": q, "variables": {"u": LEETCODE_USER}}).encode(),
+        headers={**UA, "Content-Type": "application/json", "Referer": "https://leetcode.com"})
+    d = json.load(urllib.request.urlopen(req, timeout=30))["data"]
+    rank = d["userContestRanking"]
+    history = [{"title": h["contest"]["title"],
+                "date": datetime.fromtimestamp(h["contest"]["startTime"], timezone.utc).strftime("%Y-%m-%d"),
+                "rating": round(h["rating"]), "rank": h["ranking"]}
+               for h in d["userContestRankingHistory"] if h["attended"]]
+    return {"rating": round(rank["rating"]), "attended": rank["attendedContestsCount"],
+            "top": rank["topPercentage"], "globalRank": rank["globalRanking"], "history": history}
+
+
 def github():
     req = urllib.request.Request(f"https://github.com/users/{GITHUB_USER}/contributions", headers=UA)
     html = urllib.request.urlopen(req, timeout=30).read().decode()
@@ -41,7 +59,7 @@ def github():
 
 def main():
     data = {"updated": datetime.now(timezone.utc).strftime("%Y-%m-%d")}
-    for name, fn in (("leetcode", leetcode), ("github", github)):
+    for name, fn in (("leetcode", leetcode), ("contest", contest), ("github", github)):
         try:
             data[name] = fn()
         except Exception as e:  # keep yesterday's numbers rather than wiping the heatmap
