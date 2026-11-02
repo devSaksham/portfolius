@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saksham Agrawal — Software Engineer &amp; AI/ML Builder</title>
+<meta name="description" content="Saksham Agrawal — Final-year CSE (AI/ML) student and aspiring software engineer. Full-stack AI systems, deep learning, and backend engineering.">
+<meta name="theme-color" content="#04141b">
+<link rel="canonical" href="https://sakshamagrawal.me/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sakshamagrawal.me/">
+<meta property="og:title" content="Saksham Agrawal — Software Engineer & AI/ML Builder">
+<meta property="og:description" content="Full-stack AI systems, deep learning, and backend engineering. Step inside.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2304141b'/%3E%3Cpath d='M18 50 46 14' stroke='%236a4426' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='47' cy='13' r='5' fill='%23bfe8ff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400&family=UnifrakturMaguntia&display=swap">
+<link rel="stylesheet" href="styles.css">
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="foot" viewBox="0 0 20 40">
+    <ellipse cx="10" cy="12" rx="7" ry="11"/>
+    <ellipse cx="10" cy="33" rx="5" ry="6"/>
+  </symbol>
+</svg>
+
+<!-- Faint star-chart art behind every section; a second copy is lit by the wand -->
+<div class="bg-art" aria-hidden="true"></div>
+<div class="bg-art lit" aria-hidden="true"></div>
+
+<!-- Snowy owl, cloned by main.js into each .owl-slot -->
+<template id="owl-tpl">
+  <svg class="owl" viewBox="0 0 120 120" aria-hidden="true">
+    <g class="wing-open wl"><path d="M40 60C28 46 12 40-4 44C6 48 12 52 16 58C8 58 2 62-2 66C10 66 18 68 24 72C18 74 14 78 12 82C26 80 36 76 44 70Z"/><path class="spk" d="M14 52q2-2 4 0M24 60q2-2 4 0M10 70q2-2 4 0M28 70q2-2 4 0"/></g>
+    <g class="wing-open wr"><path d="M80 60C92 46 108 40 124 44C114 48 108 52 104 58C112 58 118 62 122 66C110 66 102 68 96 72C102 74 106 78 108 82C94 80 84 76 76 70Z"/><path class="spk" d="M102 52q2-2 4 0M92 60q2-2 4 0M106 70q2-2 4 0M88 70q2-2 4 0"/></g>
+    <path class="body" d="M60 34C84 34 92 62 89 84C86 104 74 112 60 112C46 112 34 104 31 84C28 62 36 34 60 34Z"/>
+    <g class="wing-folded">
+      <path d="M34 58C26 76 28 98 44 110C40 92 40 74 43 60Z"/>
+      <path d="M86 58C94 76 92 98 76 110C80 92 80 74 77 60Z"/>
+    </g>
+    <path class="spk" d="M37 72q2-2 4 0M35 82q2-2 4 0M39 92q2-2 4 0M38 101q2-2 4 0M79 72q2-2 4 0M81 82q2-2 4 0M77 92q2-2 4 0M78 101q2-2 4 0M54 98q2-2 4 0M63 102q2-2 4 0M58 90q2-2 4 0"/>
+    <ellipse class="body" cx="60" cy="40" rx="25" ry="22"/>
+    <path class="spk" d="M49 23q2-1.5 4 0M62 21q2-1.5 4 0M70 26q2-1.5 4 0"/>
+    <path class="disc" d="M40 43C42 31 52 29 60 34C68 29 78 31 80 43"/>
+    <circle cx="50" cy="41" r="5.4" fill="#f2b22a"/><circle cx="70" cy="41" r="5.4" fill="#f2b22a"/>
+    <circle cx="50" cy="41" r="2.7" fill="#1a1410"/><circle cx="70" cy="41" r="2.7" fill="#1a1410"/>
+    <circle cx="51.2" cy="39.6" r="1" fill="#fff"/><circle cx="71.2" cy="39.6" r="1" fill="#fff"/>
+    <rect class="lid" x="43" y="35" width="34" height="12"/>
+    <path d="M57.5 46h5L60 52z" fill="#2f2a25"/>
+    <path class="feet" d="M50 111v4M54 111v4M66 111v4M70 111v4"/>
+  </svg>
+</template>
+
+<header class="topbar">
+  <a class="mono" href="#great-hall" aria-label="Saksham Agrawal, back to top">S<span>A</span></a>
+  <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+  <nav class="plainnav" id="nav" aria-label="Sections">
+    <a href="#room-of-requirement">Projects</a>
+    <a href="#journey">Experience</a>
+    <a href="#spellbook">Skills</a>
+    <a href="#records">About</a>
+    <a href="#owl-post">Contact</a>
+  </nav>
+  <span class="owl-slot nav-owl" aria-hidden="true"></span>
+</header>
+
+<canvas id="sparkles" aria-hidden="true"></canvas>
+<div class="torch" aria-hidden="true"></div>
+<div class="wand" aria-hidden="true">
+  <svg viewBox="0 0 24 140">
+    <defs>
+      <linearGradient id="wood" x1="0" x2="1"><stop offset="0" stop-color="#2a170c"/><stop offset=".45" stop-color="#7a5232"/><stop offset=".6" stop-color="#5a3a22"/><stop offset="1" stop-color="#21120a"/></linearGradient>
+      <linearGradient id="grip" x1="0" x2="1"><stop offset="0" stop-color="#1c0f08"/><stop offset=".5" stop-color="#4e301b"/><stop offset="1" stop-color="#160b05"/></linearGradient>
+    </defs>
+    <path d="M11 2.5Q12 1.5 13 2.5L15.4 86H8.6Z" fill="url(#wood)"/>
+    <path d="M8.6 86H15.4L16.6 126Q12 131 7.4 126Z" fill="url(#grip)"/>
+    <path d="M8.4 92Q12 95 15.6 92M8.2 100Q12 103 15.8 100M8 108Q12 111 16 108M7.8 116Q12 119 16.2 116" stroke="#8a6a46" stroke-width="1" fill="none" opacity=".7"/>
+    <path d="M8.6 86Q12 89 15.4 86" stroke="#b08a5a" stroke-width="1.4" fill="none"/>
+    <ellipse cx="12" cy="129" rx="5.2" ry="4" fill="#3a2212"/>
+    <circle class="tip" cx="12" cy="2.5" r="2.2"/>
+  </svg>
+</div>
+
+<main id="main">
+
+<!-- ============ THE GREAT HALL ============ -->
+<section id="great-hall" class="hero" data-room="The Great Hall">
+  <div class="scene" aria-hidden="true">
+    <div class="moon"></div>
+    <div class="stars"></div>
+    <svg class="castle" viewBox="0 0 1280 853" preserveAspectRatio="xMidYMin slice" aria-hidden="true"><path class="keep" d="M0 853L0 640L60 600L85 560L85 515L100 505L100 410L115 372L122 345L128 305L134 345L150 368L168 330L178 250L188 330L205 368L229 345L236 300L243 345L250 395L262 405L288 400L288 262L304 150L312 78L321 140L355 15L425 262L420 262L420 300L430 290L437 218L444 290L490 285L490 330L530 345L545 255L558 345L565 350L580 195L595 350L601 255L608 330L615 360L632 385L652 318L663 255L670 210L677 255L680 300L692 385L702 400L737 258L768 395L768 165L777 122L786 165L795 165L805 98L815 160L833 160L845 35L856 150L860 110L866 78L873 120L878 170L880 260L897 300L910 255L922 330L936 316L948 350L962 292L972 350L972 400L1000 400L1003 300L1010 282L1018 300L1030 250L1042 170L1054 250L1062 295L1068 300L1076 282L1084 300L1098 240L1112 155L1126 240L1136 290L1141 280L1146 300L1146 440L1160 452L1175 470L1200 505L1230 515L1250 530L1280 560L1280 853Z"/><g class="windows"><rect x="105" y="544" width="4" height="8"/><rect x="120" y="414" width="4" height="8"/><rect x="139" y="440" width="4" height="8"/><rect x="138" y="518" width="4" height="8"/><rect x="155" y="440" width="4" height="8"/><rect x="156" y="466" width="4" height="8"/><rect x="156" y="492" width="4" height="8"/><rect x="171" y="440" width="4" height="8"/><rect x="189" y="466" width="4" height="8"/><rect x="206" y="466" width="4" height="8"/><rect x="206" y="518" width="4" height="8" class=f/><rect x="240" y="466" width="4" height="8" class=f/><rect x="273" y="466" width="4" height="8" class=f/><rect x="291" y="440" width="4" height="8"/><rect x="292" y="544" width="4" height="8"/><rect x="308" y="206" width="4" height="8"/><rect x="307" y="258" width="4" height="8" class=f/><rect x="309" y="362" width="4" height="8"/><rect x="308" y="388" width="4" height="8" class=f/><rect x="309" y="440" width="4" height="8"/><rect x="327" y="180" width="4" height="8" class=f/><rect x="342" y="232" width="4" height="8"/><rect x="343" y="258" width="4" height="8"/><rect x="343" y="284" width="4" height="8" class=f/><rect x="341" y="336" width="4" height="8"/><rect x="344" y="440" width="4" height="8"/><rect x="359" y="336" width="4" height="8"/><rect x="360" y="440" width="4" height="8" class=f/><rect x="378" y="258" width="4" height="8" class=f/><rect x="377" y="284" width="4" height="8"/><rect x="375" y="440" width="4" height="8"/><rect x="376" y="518" width="4" height="8" class=f/><rect x="394" y="518" width="4" height="8" class=f/><rect x="411" y="336" width="4" height="8"/><rect x="408" y="362" width="4" height="8"/><rect x="409" y="440" width="4" height="8" class=f/><rect x="408" y="518" width="4" height="8"/><rect x="427" y="284" width="4" height="8"/><rect x="426" y="388" width="4" height="8"/><rect x="427" y="414" width="4" height="8"/><rect x="444" y="440" width="4" height="8"/><rect x="463" y="336" width="4" height="8" class=f/><rect x="459" y="414" width="4" height="8"/><rect x="461" y="440" width="4" height="8"/><rect x="478" y="388" width="4" height="8"/><rect x="477" y="544" width="4" height="8"/><rect x="497" y="388" width="4" height="8"/><rect x="531" y="414" width="4" height="8"/><rect x="527" y="518" width="4" height="8"/><rect x="544" y="362" width="4" height="8"/><rect x="564" y="440" width="4" height="8"/><rect x="580" y="492" width="4" height="8"/><rect x="598" y="414" width="4" height="8" class=f/><rect x="595" y="466" width="4" height="8" class=f/><rect x="633" y="492" width="4" height="8" class=f/><rect x="630" y="518" width="4" height="8" class=f/><rect x="647" y="440" width="4" height="8" class=f/><rect x="647" y="466" width="4" height="8"/><rect x="664" y="544" width="4" height="8"/><rect x="683" y="414" width="4" height="8"/><rect x="683" y="466" width="4" height="8"/><rect x="699" y="414" width="4" height="8" class=f/><rect x="698" y="466" width="4" height="8" class=f/><rect x="700" y="544" width="4" height="8"/><rect x="734" y="388" width="4" height="8" class=f/><rect x="732" y="414" width="4" height="8"/><rect x="732" y="544" width="4" height="8"/><rect x="750" y="414" width="4" height="8"/><rect x="768" y="544" width="4" height="8"/><rect x="785" y="518" width="4" height="8"/><rect x="784" y="544" width="4" height="8"/><rect x="799" y="180" width="4" height="8"/><rect x="802" y="310" width="4" height="8"/><rect x="801" y="388" width="4" height="8"/><rect x="802" y="466" width="4" height="8" class=f/><rect x="802" y="492" width="4" height="8"/><rect x="817" y="388" width="4" height="8"/><rect x="818" y="492" width="4" height="8"/><rect x="834" y="258" width="4" height="8"/><rect x="837" y="466" width="4" height="8"/><rect x="834" y="518" width="4" height="8" class=f/><rect x="852" y="206" width="4" height="8"/><rect x="854" y="362" width="4" height="8" class=f/><rect x="852" y="414" width="4" height="8"/><rect x="850" y="518" width="4" height="8"/><rect x="868" y="362" width="4" height="8"/><rect x="870" y="544" width="4" height="8"/><rect x="888" y="466" width="4" height="8"/><rect x="886" y="544" width="4" height="8"/><rect x="919" y="336" width="4" height="8"/><rect x="921" y="414" width="4" height="8"/><rect x="919" y="492" width="4" height="8"/><rect x="919" y="518" width="4" height="8"/><rect x="938" y="414" width="4" height="8" class=f/><rect x="954" y="362" width="4" height="8"/><rect x="970" y="492" width="4" height="8"/><rect x="971" y="518" width="4" height="8" class=f/><rect x="987" y="440" width="4" height="8"/><rect x="987" y="544" width="4" height="8"/><rect x="1004" y="492" width="4" height="8"/><rect x="1021" y="466" width="4" height="8" class=f/><rect x="1039" y="362" width="4" height="8" class=f/><rect x="1039" y="466" width="4" height="8" class=f/><rect x="1039" y="544" width="4" height="8"/><rect x="1055" y="336" width="4" height="8"/><rect x="1056" y="362" width="4" height="8" class=f/><rect x="1055" y="440" width="4" height="8"/><rect x="1057" y="518" width="4" height="8"/><rect x="1071" y="440" width="4" height="8"/><rect x="1072" y="518" width="4" height="8"/><rect x="1106" y="336" width="4" height="8"/><rect x="1105" y="362" width="4" height="8" class=f/><rect x="1108" y="388" width="4" height="8"/><rect x="1107" y="440" width="4" height="8"/><rect x="1123" y="466" width="4" height="8"/><rect x="1126" y="518" width="4" height="8" class=f/></g></svg>
+    <svg class="castle castle-lit" viewBox="0 0 1280 853" preserveAspectRatio="xMidYMin slice" aria-hidden="true"><defs><pattern id="stone" width="16" height="9" patternUnits="userSpaceOnUse"><rect width="16" height="9" fill="#1a4352"/><path d="M0 8.5H16M5 0V8.5M13 0V4" stroke="#2f6476" stroke-width=".7"/></pattern></defs><path class="keep" d="M0 853L0 640L60 600L85 560L85 515L100 505L100 410L115 372L122 345L128 305L134 345L150 368L168 330L178 250L188 330L205 368L229 345L236 300L243 345L250 395L262 405L288 400L288 262L304 150L312 78L321 140L355 15L425 262L420 262L420 300L430 290L437 218L444 290L490 285L490 330L530 345L545 255L558 345L565 350L580 195L595 350L601 255L608 330L615 360L632 385L652 318L663 255L670 210L677 255L680 300L692 385L702 400L737 258L768 395L768 165L777 122L786 165L795 165L805 98L815 160L833 160L845 35L856 150L860 110L866 78L873 120L878 170L880 260L897 300L910 255L922 330L936 316L948 350L962 292L972 350L972 400L1000 400L1003 300L1010 282L1018 300L1030 250L1042 170L1054 250L1062 295L1068 300L1076 282L1084 300L1098 240L1112 155L1126 240L1136 290L1141 280L1146 300L1146 440L1160 452L1175 470L1200 505L1230 515L1250 530L1280 560L1280 853Z"/><g class="windows"><rect x="105" y="544" width="4" height="8"/><rect x="120" y="414" width="4" height="8"/><rect x="139" y="440" width="4" height="8"/><rect x="138" y="518" width="4" height="8"/><rect x="155" y="440" width="4" height="8"/><rect x="156" y="466" width="4" height="8"/><rect x="156" y="492" width="4" height="8"/><rect x="171" y="440" width="4" height="8"/><rect x="189" y="466" width="4" height="8"/><rect x="206" y="466" width="4" height="8"/><rect x="206" y="518" width="4" height="8" class=f/><rect x="240" y="466" width="4" height="8" class=f/><rect x="273" y="466" width="4" height="8" class=f/><rect x="291" y="440" width="4" height="8"/><rect x="292" y="544" width="4" height="8"/><rect x="308" y="206" width="4" height="8"/><rect x="307" y="258" width="4" height="8" class=f/><rect x="309" y="362" width="4" height="8"/><rect x="308" y="388" width="4" height="8" class=f/><rect x="309" y="440" width="4" height="8"/><rect x="327" y="180" width="4" height="8" class=f/><rect x="342" y="232" width="4" height="8"/><rect x="343" y="258" width="4" height="8"/><rect x="343" y="284" width="4" height="8" class=f/><rect x="341" y="336" width="4" height="8"/><rect x="344" y="440" width="4" height="8"/><rect x="359" y="336" width="4" height="8"/><rect x="360" y="440" width="4" height="8" class=f/><rect x="378" y="258" width="4" height="8" class=f/><rect x="377" y="284" width="4" height="8"/><rect x="375" y="440" width="4" height="8"/><rect x="376" y="518" width="4" height="8" class=f/><rect x="394" y="518" width="4" height="8" class=f/><rect x="411" y="336" width="4" height="8"/><rect x="408" y="362" width="4" height="8"/><rect x="409" y="440" width="4" height="8" class=f/><rect x="408" y="518" width="4" height="8"/><rect x="427" y="284" width="4" height="8"/><rect x="426" y="388" width="4" height="8"/><rect x="427" y="414" width="4" height="8"/><rect x="444" y="440" width="4" height="8"/><rect x="463" y="336" width="4" height="8" class=f/><rect x="459" y="414" width="4" height="8"/><rect x="461" y="440" width="4" height="8"/><rect x="478" y="388" width="4" height="8"/><rect x="477" y="544" width="4" height="8"/><rect x="497" y="388" width="4" height="8"/><rect x="531" y="414" width="4" height="8"/><rect x="527" y="518" width="4" height="8"/><rect x="544" y="362" width="4" height="8"/><rect x="564" y="440" width="4" height="8"/><rect x="580" y="492" width="4" height="8"/><rect x="598" y="414" width="4" height="8" class=f/><rect x="595" y="466" width="4" height="8" class=f/><rect x="633" y="492" width="4" height="8" class=f/><rect x="630" y="518" width="4" height="8" class=f/><rect x="647" y="440" width="4" height="8" class=f/><rect x="647" y="466" width="4" height="8"/><rect x="664" y="544" width="4" height="8"/><rect x="683" y="414" width="4" height="8"/><rect x="683" y="466" width="4" height="8"/><rect x="699" y="414" width="4" height="8" class=f/><rect x="698" y="466" width="4" height="8" class=f/><rect x="700" y="544" width="4" height="8"/><rect x="734" y="388" width="4" height="8" class=f/><rect x="732" y="414" width="4" height="8"/><rect x="732" y="544" width="4" height="8"/><rect x="750" y="414" width="4" height="8"/><rect x="768" y="544" width="4" height="8"/><rect x="785" y="518" width="4" height="8"/><rect x="784" y="544" width="4" height="8"/><rect x="799" y="180" width="4" height="8"/><rect x="802" y="310" width="4" height="8"/><rect x="801" y="388" width="4" height="8"/><rect x="802" y="466" width="4" height="8" class=f/><rect x="802" y="492" width="4" height="8"/><rect x="817" y="388" width="4" height="8"/><rect x="818" y="492" width="4" height="8"/><rect x="834" y="258" width="4" height="8"/><rect x="837" y="466" width="4" height="8"/><rect x="834" y="518" width="4" height="8" class=f/><rect x="852" y="206" width="4" height="8"/><rect x="854" y="362" width="4" height="8" class=f/><rect x="852" y="414" width="4" height="8"/><rect x="850" y="518" width="4" height="8"/><rect x="868" y="362" width="4" height="8"/><rect x="870" y="544" width="4" height="8"/><rect x="888" y="466" width="4" height="8"/><rect x="886" y="544" width="4" height="8"/><rect x="919" y="336" width="4" height="8"/><rect x="921" y="414" width="4" height="8"/><rect x="919" y="492" width="4" height="8"/><rect x="919" y="518" width="4" height="8"/><rect x="938" y="414" width="4" height="8" class=f/><rect x="954" y="362" width="4" height="8"/><rect x="970" y="492" width="4" height="8"/><rect x="971" y="518" width="4" height="8" class=f/><rect x="987" y="440" width="4" height="8"/><rect x="987" y="544" width="4" height="8"/><rect x="1004" y="492" width="4" height="8"/><rect x="1021" y="466" width="4" height="8" class=f/><rect x="1039" y="362" width="4" height="8" class=f/><rect x="1039" y="466" width="4" height="8" class=f/><rect x="1039" y="544" width="4" height="8"/><rect x="1055" y="336" width="4" height="8"/><rect x="1056" y="362" width="4" height="8" class=f/><rect x="1055" y="440" width="4" height="8"/><rect x="1057" y="518" width="4" height="8"/><rect x="1071" y="440" width="4" height="8"/><rect x="1072" y="518" width="4" height="8"/><rect x="1106" y="336" width="4" height="8"/><rect x="1105" y="362" width="4" height="8" class=f/><rect x="1108" y="388" width="4" height="8"/><rect x="1107" y="440" width="4" height="8"/><rect x="1123" y="466" width="4" height="8"/><rect x="1126" y="518" width="4" height="8" class=f/></g></svg>
+    <div class="rain"></div>
+    <div class="mist"></div>
+  </div>
+
+  <div class="hero-copy">
+    <p class="kicker">Final-Year CSE · AI / ML</p>
+    <h1 class="inscription">Saksham Agrawal</h1>
+    <p class="role">Software Engineer <span>·</span> AI/ML Builder</p>
+    <p class="intro">I build full-stack AI systems — FastAPI backends, deep-learning models, and LLM/RAG pipelines — and take them from idea to something that actually runs.</p>
+    <div class="ctas">
+      <a class="btn btn-gold" href="#room-of-requirement">Explore My Work</a>
+      <!-- TODO: add assets/resume.pdf and point this at it -->
+      <a class="btn btn-ghost" href="#owl-post">View Resume</a>
+    </div>
+  </div>
+  <a class="follow" href="#what-i-do">
+    <span class="ff"><svg viewBox="0 0 20 40" aria-hidden="true"><use href="#foot"/></svg><svg viewBox="0 0 20 40" aria-hidden="true"><use href="#foot"/></svg></span>
+    <span>Follow the footsteps</span>
+  </a>
+</section>
+
+<!-- ============ WHAT I DO ============ -->
+<section id="what-i-do" class="band" data-room="What I Do">
+  <h2 class="eyebrow">What I do</h2>
+  <ul class="plaques">
+    <li class="rv"><span class="rune" aria-hidden="true">ᚠ</span><h3>Full-Stack AI</h3><p>End-to-end AI apps — FastAPI backends, LLM/RAG pipelines, and clean, usable frontends.</p></li>
+    <li class="rv"><span class="rune" aria-hidden="true">ᛞ</span><h3>Deep Learning</h3><p>Designing, training, and benchmarking models from scratch — CNNs, GRU/LSTM, and KAN.</p></li>
+    <li class="rv"><span class="rune" aria-hidden="true">ᛒ</span><h3>Backend &amp; APIs</h3><p>FastAPI, REST, relational &amp; vector databases — built with production in mind.</p></li>
+    <li class="rv"><span class="rune" aria-hidden="true">ᛚ</span><h3>LLM / GenAI</h3><p>Gemini API, structured outputs, and RAG grounding to cut hallucination in real apps.</p></li>
+  </ul>
+</section>
+
+<!-- ============ THE ROOM OF REQUIREMENT ============ -->
+<section id="room-of-requirement" class="room" data-room="Room of Requirement">
+  <header class="sec-head">
+    <p class="kicker">Selected work</p>
+    <h2>The Room of Requirement</h2>
+    <p class="lede">It gives you exactly what you need. Here: five things I built.</p>
+  </header>
+
+  <ul class="artefacts">
+    <li class="rv">
+      <article class="artefact">
+        <svg class="relic" viewBox="0 0 64 64" aria-hidden="true"><path d="M50 6C30 10 18 26 14 50l4 2c6-8 12-14 20-18-6 0-10 2-14 4 6-8 14-12 20-12-4-2-8-2-12-1 8-6 14-12 18-19z"/><path d="M14 50l-4 8"/><rect x="30" y="44" width="26" height="16" rx="1"/><path d="M30 44l13 9 13-9"/></svg>
+        <span class="badge live">Live</span>
+        <h3>JobGenie</h3>
+        <p>AI-powered job-search &amp; application copilot — resume parsing, ATS-score simulation, JD matching, grounded by RAG.</p>
+        <p class="tech">Python · FastAPI · Gemini API · RAG · Docker · PostgreSQL</p>
+        <div class="card-actions">
+          <button type="button" class="open-cue" data-dossier="d-jobgenie">Read more</button>
+          <a class="primary" href="https://jobgenie.tech/" target="_blank" rel="noopener">Visit jobgenie.tech →</a>
+        </div>
+      </article>
+    </li>
+    <li class="rv">
+      <article class="artefact">
+        <svg class="relic" viewBox="0 0 64 64" aria-hidden="true"><path d="M32 60C30 40 34 20 46 4c4 14 0 30-12 44"/><path d="M33 50c-6-4-10-10-12-18m14 8c-6-2-12-8-14-14m16 4c-4-2-8-6-10-12m14 2c-2-4-4-8-4-12"/><path d="M40 36c4-2 8-6 10-12m-12 4c4-2 6-6 8-10"/></svg>
+        <span class="badge">5th · Hackathon</span>
+        <h3>PhoniX</h3>
+        <p>Vishing (voice-phishing) detection — classifies live call audio and flags deepfake speech.</p>
+        <p class="metric">89.68% accuracy</p>
+        <p class="tech">Python · PyTorch · Audio Processing · Deep Learning</p>
+        <div class="card-actions">
+          <button type="button" class="open-cue" data-dossier="d-phonix">Read more</button>
+          <a class="primary" href="https://github.com/devSaksham/PhoniX" target="_blank" rel="noopener">GitHub →</a>
+        </div>
+      </article>
+    </li>
+    <li class="rv">
+      <article class="artefact">
+        <svg class="relic" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="28" r="20"/><path d="M22 20c3-4 7-6 12-6"/><path d="M18 52h28l-4-6H22z"/><path d="M14 58h36"/><circle cx="38" cy="32" r="2"/><circle cx="28" cy="36" r="1.4"/></svg>
+        <span class="badge">Research</span>
+        <h3>Session-Based Recommender</h3>
+        <p>Next-item recommendation on YooChoose clickstreams — GRU, recurrent KAN, and a hybrid GRU+KAN, built from scratch.</p>
+        <p class="metric">58.08% HR@10 · 39.42% NDCG@10</p>
+        <p class="tech">Python · PyTorch · GRU + KAN · Deep Learning</p>
+        <div class="card-actions">
+          <button type="button" class="open-cue" data-dossier="d-recsys">Read more</button>
+          <!-- TODO: add repo/paper link -->
+        </div>
+      </article>
+    </li>
+    <li class="rv">
+      <article class="artefact">
+        <svg class="relic" viewBox="0 0 64 64" aria-hidden="true"><path d="M8 56L44 20"/><path d="M44 20l4-10 6 6-10 4"/><path d="M8 56l-2 4M12 52c-6-2-8-6-8-6m12 2c-2 6-6 8-6 8m4-14c-6 0-10 4-10 4m14 0c0 6-4 10-4 10"/><circle cx="50" cy="10" r="1.5"/><circle cx="58" cy="22" r="1"/></svg>
+        <span class="badge">Open Source</span>
+        <h3>Launch Cadence</h3>
+        <p>A rocket launch management &amp; booking system — scheduling, management, and booking workflows, end-to-end.</p>
+        <p class="tech">Full-Stack · Booking System</p>
+        <div class="card-actions">
+          <button type="button" class="open-cue" data-dossier="d-launch">Read more</button>
+          <a class="primary" href="https://github.com/devSaksham/Rocket-Launch-Management-and-Booking-System" target="_blank" rel="noopener">GitHub →</a>
+        </div>
+      </article>
+    </li>
+    <li class="rv">
+      <article class="artefact">
+        <svg class="relic" viewBox="0 0 64 64" aria-hidden="true"><path d="M12 10h30a6 6 0 016 6v40H18a6 6 0 01-6-6z"/><path d="M12 50a6 6 0 016-6h30"/><path d="M22 10v20l4-3 4 3V10"/><path d="M48 30c6 0 8 4 8 8s-2 6-6 6m6-6h4"/><circle cx="56" cy="50" r="3"/></svg>
+        <span class="badge">Team project</span>
+        <h3>Library Management System</h3>
+        <p>A Java Swing desktop app for books, members, and issue/return workflows on a relational database.</p>
+        <p class="tech">Java · Swing · SQL · Desktop GUI</p>
+        <div class="card-actions">
+          <button type="button" class="open-cue" data-dossier="d-library">Read more</button>
+          <a class="primary" href="https://github.com/Abhishek15082002/Library-Management-Sytem-Swing" target="_blank" rel="noopener">GitHub →</a>
+        </div>
+      </article>
+    </li>
+  </ul>
+</section>
+
+<!-- Project dossiers -->
+<dialog class="prophet" id="d-jobgenie" aria-labelledby="d-jobgenie-h">
+  <form method="dialog"><button class="x" aria-label="Close">✕</button></form>
+  <p class="masthead">The Daily Prophet <span>· Project 01 · Live</span></p>
+  <h2 id="d-jobgenie-h">JobGenie Grants Job Seekers an AI Copilot</h2>
+  <p class="deck">A full-stack AI assistant for job search and applications, built on a FastAPI backend and the Gemini API.</p>
+  <div class="cols">
+    <div>
+      <h3>What it does</h3>
+      <ul>
+        <li>Resume parsing and ATS-score simulation.</li>
+        <li>Job-description matching.</li>
+        <li>A RAG pipeline that grounds LLM outputs to reduce hallucination in match scoring.</li>
+        <li>An LLM analytics dashboard.</li>
+        <li>Multi-resume A/B testing and interview tracking.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Built with</h3>
+      <p class="tech">Python · FastAPI · Gemini API · RAG · Docker · PostgreSQL</p>
+      <h3>Status</h3>
+      <p>Live and running.</p>
+      <p class="links"><a class="btn btn-ink" href="https://jobgenie.tech/" target="_blank" rel="noopener">Visit jobgenie.tech →</a></p>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="prophet" id="d-phonix" aria-labelledby="d-phonix-h">
+  <form method="dialog"><button class="x" aria-label="Close">✕</button></form>
+  <p class="masthead">The Daily Prophet <span>· Project 02 · 5th Place</span></p>
+  <h2 id="d-phonix-h">PhoniX Unmasks Deepfake Callers</h2>
+  <p class="deck">An AI-powered vishing (voice-phishing) detection system that classifies live call audio to flag phishing calls.</p>
+  <div class="cols">
+    <div>
+      <h3>How it works</h3>
+      <ul>
+        <li>A real-time dialer streams live audio for classification.</li>
+        <li>A deep-learning pipeline distinguishes authentic human speech from deepfake-generated audio.</li>
+        <li>Features are extracted from audio spectrograms.</li>
+      </ul>
+      <h3>Results</h3>
+      <p class="metric">89.68% accuracy · 5th place, CSA Hackathon 3.0</p>
+    </div>
+    <div>
+      <h3>Built with</h3>
+      <p class="tech">Python · PyTorch · Audio Processing · Deep Learning</p>
+      <p class="links"><a class="btn btn-ink" href="https://github.com/devSaksham/PhoniX" target="_blank" rel="noopener">View on GitHub →</a></p>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="prophet" id="d-recsys" aria-labelledby="d-recsys-h">
+  <form method="dialog"><button class="x" aria-label="Close">✕</button></form>
+  <p class="masthead">The Daily Prophet <span>· Project 03 · Research</span></p>
+  <h2 id="d-recsys-h">Recurrent KAN Predicts the Next Click</h2>
+  <p class="deck">A next-item recommendation engine on sequential clickstream data, with three architectures implemented and benchmarked from scratch.</p>
+  <div class="cols">
+    <div>
+      <h3>The work</h3>
+      <ul>
+        <li>Dataset: YooChoose — 50K sessions / 128K+ samples.</li>
+        <li>GRU baseline.</li>
+        <li>Pure recurrent KAN.</li>
+        <li>Hybrid GRU+KAN using learnable B-spline activations for better interpretability.</li>
+      </ul>
+      <h3>Results</h3>
+      <p class="metric">58.08% HR@10 · 39.42% NDCG@10</p>
+    </div>
+    <div>
+      <h3>Built with</h3>
+      <p class="tech">Python · PyTorch · GRU + KAN · Deep Learning</p>
+      <!-- TODO: add repo/paper link -->
+    </div>
+  </div>
+</dialog>
+
+<dialog class="prophet" id="d-launch" aria-labelledby="d-launch-h">
+  <form method="dialog"><button class="x" aria-label="Close">✕</button></form>
+  <p class="masthead">The Daily Prophet <span>· Project 04 · Open Source</span></p>
+  <h2 id="d-launch-h">Launch Cadence Books Seats to Orbit</h2>
+  <p class="deck">A rocket launch management and booking system — scheduling, management, and booking workflows for launches, built end-to-end.</p>
+  <div class="cols">
+    <div>
+      <h3>Built with</h3>
+      <p class="tech">Full-Stack · Booking System</p>
+    </div>
+    <div>
+      <p class="links"><a class="btn btn-ink" href="https://github.com/devSaksham/Rocket-Launch-Management-and-Booking-System" target="_blank" rel="noopener">View on GitHub →</a></p>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="prophet" id="d-library" aria-labelledby="d-library-h">
+  <form method="dialog"><button class="x" aria-label="Close">✕</button></form>
+  <p class="masthead">The Daily Prophet <span>· Project 05 · Team Project</span></p>
+  <h2 id="d-library-h">Library Ledger Goes Desktop</h2>
+  <p class="deck">A desktop library-management application built with Java Swing.</p>
+  <div class="cols">
+    <div>
+      <h3>What it does</h3>
+      <ul>
+        <li>A GUI for managing books and members.</li>
+        <li>Issue / return workflows.</li>
+        <li>Backed by a relational database.</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Built with</h3>
+      <p class="tech">Java · Swing · SQL · Desktop GUI</p>
+      <p class="links"><a class="btn btn-ink" href="https://github.com/Abhishek15082002/Library-Management-Sytem-Swing" target="_blank" rel="noopener">View on GitHub →</a></p>
+    </div>
+  </div>
+</dialog>
+
+<!-- ============ THE SORTING HAT ============ -->
+<section id="sorting-hat" class="hat-sec" data-room="The Sorting Hat" aria-labelledby="hat-h">
+  <button type="button" class="hat" aria-describedby="hat-say">
+    <svg viewBox="0 0 200 180" aria-hidden="true">
+      <path class="brim" d="M10 150c30-18 150-18 180 0-20 14-160 14-180 0z"/>
+      <path class="cone" d="M40 146c6-30 20-46 34-58 6-30 14-56 40-80-6 26 0 40 10 48-14 4-20 14-18 26 18 10 34 30 44 62-30 10-80 10-110 2z"/>
+      <path class="crease" d="M62 118c10 6 24 6 34 0M70 104c6-4 12-4 18 0M106 102c6-4 12-4 18 0"/>
+      <path class="mouth" d="M78 132c14 8 36 8 50 0"/>
+      <path class="patch" d="M120 64l14 6-4 14-14-4z"/>
+    </svg>
+    <span class="sr-only">Ask the Sorting Hat about Saksham</span>
+  </button>
+  <div class="hat-text">
+    <p class="kicker">An optional detour</p>
+    <h2 id="hat-h">Put on the Sorting Hat</h2>
+    <p id="hat-say" class="say" aria-live="polite">“Hmm… a curious mind. Shall I take a look?” <span class="hint-inline">Click the hat.</span></p>
+  </div>
+</section>
+
+<!-- ============ THE WIZARDING JOURNEY ============ -->
+<section id="journey" class="diary-sec" data-room="The Wizarding Journey">
+  <header class="sec-head">
+    <p class="kicker">Experience &amp; Leadership</p>
+    <h2>The Wizarding Journey</h2>
+  </header>
+  <ol class="diary">
+    <li class="entry rv">
+      <time>Jun – Jul 2026</time>
+      <h3>Intern · <span>IBM</span></h3>
+      <ul>
+        <li>Trained a custom CNN in PyTorch on the PlantVillage image dataset across 15 disease classes and benchmarked it against EfficientNet, shipping the custom model after it scored ~10% higher on macro-F1.</li>
+        <li>Deployed the classifier as a Streamlit application that diagnoses leaf images and returns treatment guidance in 2 languages (Hindi and English), combining stored recommendations with LLM-generated output.</li>
+      </ul>
+      <p class="tech">Python · PyTorch · CNN · Computer Vision · Streamlit</p>
+      <a class="quill-link" href="https://github.com/devSaksham/crop-disease-detection" target="_blank" rel="noopener">View on GitHub →</a>
+    </li>
+    <li class="entry rv">
+      <time>May 2026 – Present</time>
+      <h3>President · <span>Cloud Security Alliance (CSA), UPES</span></h3>
+      <ul><li>Lead the UPES CSA chapter and its 50-member team, overseeing technical initiatives, industry partnerships, and execution of community events.</li></ul>
+    </li>
+    <li class="entry rv">
+      <time>May 2025 – May 2026</time>
+      <h3>Registrations Head · <span>Cloud Security Alliance (CSA), UPES</span></h3>
+      <ul><li>Led the registrations team and ran end-to-end registration and onboarding operations for AWS Community Day Dehradun, supporting 400+ participants across cross-functional event teams.</li></ul>
+    </li>
+    <li class="entry rv award">
+      <time>Achievement</time>
+      <h3>5th Place · <span>CSA Hackathon 3.0, UPES</span></h3>
+      <ul><li>Recognised for innovation in AI-driven cybersecurity solutions (PhoniX project).</li></ul>
+    </li>
+    <li class="entry rv">
+      <time>Jun – Jul 2024</time>
+      <h3>Social Intern · <span>Gram Rajya Vikas Evam Prashikshan Sansthan</span></h3>
+      <ul>
+        <li>Assisted legal authorities in more than 5 rescue and rehabilitation operations related to child-labour cases.</li>
+        <li>Supported more than 20 interventions under child protection and POCSO regulations.</li>
+      </ul>
+      <p class="tech">Field Coordination · Documentation · Community Engagement · Teamwork</p>
+    </li>
+  </ol>
+</section>
+
+<!-- ============ THE SPELLBOOK ============ -->
+<section id="spellbook" class="book-sec" data-room="The Spellbook">
+  <header class="sec-head">
+    <p class="kicker">Technical skills</p>
+    <h2>The Spellbook</h2>
+    <p class="lede">Every spell here is one I’ve actually cast in a project.</p>
+  </header>
+  <div class="book rv">
+    <div class="page left">
+      <p class="chapters-title">Contents</p>
+      <div class="chapters" role="tablist" aria-label="Skill chapters">
+        <button role="tab" id="t-charms" aria-controls="p-charms" aria-selected="true"><em>I.</em> Charms <small>Languages</small></button>
+        <button role="tab" id="t-transfig" aria-controls="p-transfig" aria-selected="false" tabindex="-1"><em>II.</em> Transfiguration <small>AI / ML</small></button>
+        <button role="tab" id="t-potions" aria-controls="p-potions" aria-selected="false" tabindex="-1"><em>III.</em> Potions <small>Backend &amp; Data</small></button>
+        <button role="tab" id="t-artefacts" aria-controls="p-artefacts" aria-selected="false" tabindex="-1"><em>IV.</em> Artefacts <small>Tools</small></button>
+      </div>
+    </div>
+    <div class="page right">
+      <div class="panel" role="tabpanel" id="p-charms" aria-labelledby="t-charms">
+        <h3>Charms <small>Languages</small></h3>
+        <ul class="spells"><li>Python</li><li>Java</li><li>C</li><li>SQL</li></ul>
+      </div>
+      <div class="panel" role="tabpanel" id="p-transfig" aria-labelledby="t-transfig">
+        <h3>Transfiguration <small>AI / ML</small></h3>
+        <ul class="spells"><li>PyTorch</li><li>scikit-learn</li><li>CNN</li><li>GRU / LSTM</li><li>KAN</li><li>OpenCV</li><li>NumPy</li><li>pandas</li><li>Gemini API</li><li>RAG</li><li>Vector Search</li></ul>
+      </div>
+      <div class="panel" role="tabpanel" id="p-potions" aria-labelledby="t-potions">
+        <h3>Potions <small>Backend &amp; Data</small></h3>
+        <ul class="spells"><li>FastAPI</li><li>REST APIs</li><li>PostgreSQL</li><li>MySQL</li><li>MongoDB</li><li>Redis</li></ul>
+      </div>
+      <div class="panel" role="tabpanel" id="p-artefacts" aria-labelledby="t-artefacts">
+        <h3>Artefacts <small>Tools</small></h3>
+        <ul class="spells"><li>Git</li><li>Docker</li><li>CI/CD</li><li>Streamlit</li><li>Swing</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOGWARTS RECORDS ============ -->
+<section id="records" class="records" data-room="Hogwarts Records">
+  <header class="sec-head">
+    <p class="kicker">About &amp; Education</p>
+    <h2>Hogwarts Records</h2>
+  </header>
+  <div class="records-grid">
+    <figure class="portrait rv">
+      <div class="frame">
+        <!-- TODO: swap the monogram for <img src="assets/saksham.jpg" alt="Saksham Agrawal"> -->
+        <div class="sitter" role="img" aria-label="Portrait placeholder: SA monogram"><span>SA</span></div>
+      </div>
+      <figcaption>Saksham Agrawal</figcaption>
+    </figure>
+
+    <div class="about rv">
+      <blockquote>I don’t like leaving ideas as ideas. If I can imagine it, I want to build it.</blockquote>
+      <p>I’m a final-year Computer Science (AI &amp; ML) student at UPES who enjoys turning concepts into real products. From training machine learning models and building FastAPI backends to integrating LLMs with RAG, I love working across the entire stack. Whether it’s JobGenie or my latest experiment, I’m always chasing the next problem worth solving.</p>
+      <p>Outside of building, you’ll usually find me solving DSA, exploring new technologies, or figuring out how to make software just a little smarter.</p>
+    </div>
+
+    <article class="letter rv" aria-labelledby="edu-h">
+      <p class="letter-from">UPES · Office of the Registrar</p>
+      <h3 id="edu-h">B.Tech, Computer Science &amp; Engineering (AI/ML)</h3>
+      <p class="letter-meta"><time>2023 – Present</time> · CGPA <strong>8.75 / 10</strong></p>
+      <p><em>Relevant coursework:</em> Machine Learning · Pattern &amp; Visual Recognition · Deep Learning · Data Structures &amp; Algorithms · Database Management Systems · Operating Systems.</p>
+      <span class="seal" aria-hidden="true">SA</span>
+    </article>
+
+    <div class="profiles rv">
+      <a class="profile" href="https://leetcode.com/u/Sakshamm_codes/" target="_blank" rel="noopener">
+        <span class="p-label">House points · LeetCode ↗</span>
+        <span class="p-big">500+</span>
+        <span class="p-sub">problems solved · @Sakshamm_codes</span>
+      </a>
+      <a class="profile" href="https://github.com/devSaksham" target="_blank" rel="noopener">
+        <span class="p-label">The Archive · GitHub ↗</span>
+        <span class="p-big">AI / ML</span>
+        <span class="p-sub">projects &amp; open source · @devSaksham</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THE OWL POST ============ -->
+<section id="owl-post" class="owlpost" data-room="The Owl Post">
+  <div class="owlery rv" aria-hidden="true">
+    <div class="window">
+      <span class="w-moon"></span>
+      <span class="owl-slot post-owl"></span>
+      <span class="perch"></span>
+    </div>
+  </div>
+  <div class="post rv">
+    <p class="kicker">Let’s talk</p>
+    <h2>The Owl Post</h2>
+    <p class="lede">Have something that needs to be built? Open to freelance and full-time opportunities. Reach out about a role, a project, or just to talk shop — I read everything myself.</p>
+    <div class="post-actions">
+      <a class="btn btn-gold" href="mailto:reach.saksham.agrawal@gmail.com" data-send-owl>Send an owl →</a>
+      <button type="button" class="btn btn-ghost" data-copy="reach.saksham.agrawal@gmail.com">Copy email</button>
+      <span class="copied" role="status" aria-live="polite"></span>
+    </div>
+    <ul class="addresses">
+      <li><a href="mailto:reach.saksham.agrawal@gmail.com"><span>Email</span>reach.saksham.agrawal@gmail.com</a></li>
+      <li><a href="https://www.linkedin.com/in/sakshamhere/" target="_blank" rel="noopener"><span>LinkedIn</span>in/sakshamhere</a></li>
+      <li><a href="https://github.com/devSaksham" target="_blank" rel="noopener"><span>GitHub</span>devSaksham</a></li>
+      <li><a href="https://leetcode.com/u/Sakshamm_codes/" target="_blank" rel="noopener"><span>LeetCode · 500+ solved</span>Sakshamm_codes</a></li>
+      <!-- TODO: replace with assets/resume.pdf once available -->
+      <li><a href="mailto:reach.saksham.agrawal@gmail.com?subject=Resume%20request"><span>Resume</span>Available on request</a></li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <p>© 2026 Saksham Agrawal</p>
+  <p class="credits">An independent, fan-inspired design — not affiliated with Warner Bros. or J.K. Rowling.</p>
+</footer>
+
+<script src="main.js" defer></script>
+</body>
+</html>
