@@ -23,28 +23,11 @@ nav.addEventListener('click', e => {
   if (e.target.closest('a')) { nav.classList.remove('open'); menuBtn.setAttribute('aria-expanded', false); }
 });
 
-/* ---------- Gentle fade-ins + footsteps leading into each section ---------- */
-$$('main > section:not(.hero)').forEach(sec => {
-  const walk = document.createElement('div');
-  walk.className = 'walk';
-  walk.setAttribute('aria-hidden', 'true');
-  const n = 6;
-  for (let i = 0; i < n; i++) {
-    walk.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 20 40"><use href="#foot"/></svg>');
-    const f = walk.lastChild;
-    const side = i % 2 ? 9 : -9;
-    f.style.top = (i / (n - 1)) * 100 + '%';
-    f.style.left = Math.sin(i * 0.9) * 14 + side + 'px';
-    f.style.setProperty('--r', 180 + Math.cos(i * 0.9) * 14 + 'deg'); // toes pointing down the page
-    f.style.transitionDelay = i * 0.22 + 's';
-  }
-  sec.prepend(walk);
-});
-
+/* ---------- Gentle fade-ins ---------- */
 const revealObs = new IntersectionObserver(entries => {
   for (const e of entries) if (e.isIntersecting) { e.target.classList.add('in'); revealObs.unobserve(e.target); }
 }, { rootMargin: '0px 0px -12% 0px' });
-$$('.rv, .walk').forEach(el => reduce ? el.classList.add('in') : revealObs.observe(el));
+$$('.rv').forEach(el => reduce ? el.classList.add('in') : revealObs.observe(el));
 
 /* ---------- Project dossiers ---------- */
 $$('[data-dossier]').forEach(b => b.addEventListener('click', () => $('#' + b.dataset.dossier).showModal()));
@@ -150,7 +133,26 @@ hat.addEventListener('click', async () => {
 
 /* ---------- Wand: a torch that lights the castle and the star charts ---------- */
 const wand = $('.wand'), castleLit = $('.castle-lit');
-if (castleLit && !fine) { castleLit.style.setProperty('--hx', '30%'); castleLit.style.setProperty('--hy', '58%'); }
+// touch screens: no wand, so a soft light drifts slowly over the castle and the star charts
+if (!fine && !reduce) {
+  root.classList.add('drift-on');
+  let last = 0;
+  const drift = now => {
+    if (!document.hidden && now - last > 33) {
+      last = now;
+      const t = now / 1000;
+      const mx = innerWidth * (0.5 + 0.38 * Math.sin(t * 0.23)), my = innerHeight * (0.55 + 0.25 * Math.sin(t * 0.31 + 1));
+      root.style.setProperty('--mx', mx + 'px');
+      root.style.setProperty('--my', my + 'px');
+      if (castleLit) {
+        const r = castleLit.getBoundingClientRect();
+        if (r.bottom > 0) { castleLit.style.setProperty('--hx', mx - r.left + 'px'); castleLit.style.setProperty('--hy', my - r.top + 'px'); }
+      }
+    }
+    requestAnimationFrame(drift);
+  };
+  requestAnimationFrame(drift);
+}
 if (fine) {
   let x = -999, y = -999, lastX = 0, tilt = 0, queued = false;
   const frame = () => {
@@ -158,7 +160,7 @@ if (fine) {
     tilt += (Math.max(-10, Math.min(10, (x - lastX) * 0.6)) - tilt) * 0.2;
     lastX = x;
     // tip of the wand sits exactly on the pointer
-    wand.style.transform = `translate(${x - 13}px, ${y - 2.7}px) rotate(${-32 + tilt}deg)`;
+    wand.style.transform = `translate(${x - 13}px, ${y - 2.2}px) rotate(${-32 + tilt}deg)`;
     root.style.setProperty('--mx', x + 'px');
     root.style.setProperty('--my', y + 'px');
     if (castleLit) {
@@ -180,14 +182,32 @@ if (fine) {
   document.addEventListener('pointerover', e => wand.classList.toggle('hot', !!e.target.closest('a, button')));
 }
 
-/* ---------- Owl: perched in the header and the Owl Post, flies on contact ---------- */
+/* ---------- Owl: perches on the heading you're reading, flies between them ---------- */
 const tpl = $('#owl-tpl');
-$$('.owl-slot').forEach(s => s.append(tpl.content.cloneNode(true)));
-const navOwl = $('.nav-owl'), postOwl = $('.post-owl');
-const ease = t => 0.5 - Math.cos(Math.PI * t) / 2;
-const center = el => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width }; };
+const owl = document.createElement('span');
+owl.className = 'owl-slot';
+owl.append(tpl.content.cloneNode(true));
+// a perch at the end of each section title; the Owl Post perch is the window
+const perches = new Map();
+$$('main > section').forEach(sec => {
+  let spot = $('.window-spot', sec);
+  if (!spot) {
+    const h = $('h1, .sec-head h2, .hat-text h2, .eyebrow', sec);
+    if (!h) return;
+    spot = document.createElement('span');
+    spot.className = 'perch-spot';
+    spot.setAttribute('aria-hidden', 'true');
+    h.append(spot);
+  }
+  perches.set(sec, spot);
+});
+perches.get($('.hero')).append(owl);
 
-function leg(flyer, size, [p0, p1, p2, p3], dur, sparkle) {
+const ease = t => 0.5 - Math.cos(Math.PI * t) / 2;
+const box = el => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width }; };
+
+// cubic bezier flight of a fixed-position copy; size eases from start to end
+function leg(flyer, [p0, p1, p2, p3], s0, s1, dur, sparkle) {
   return new Promise(done => {
     const t0 = performance.now();
     let px = p0.x;
@@ -195,58 +215,116 @@ function leg(flyer, size, [p0, p1, p2, p3], dur, sparkle) {
       const t = Math.min(1, (now - t0) / dur), e = ease(t), u = 1 - e;
       const x = u * u * u * p0.x + 3 * u * u * e * p1.x + 3 * u * e * e * p2.x + e * e * e * p3.x;
       const y = u * u * u * p0.y + 3 * u * u * e * p1.y + 3 * u * e * e * p2.y + e * e * e * p3.y;
+      const s = s0 + (s1 - s0) * e;
       const tilt = Math.max(-18, Math.min(18, (x - px) * 1.2));
       px = x;
-      flyer.style.transform = `translate(${x - size / 2}px, ${y - size / 2}px) rotate(${tilt}deg)`;
-      for (let i = 0; i < sparkle; i++)
-        spawn(x + (Math.random() - 0.5) * size * 0.4, y + size * 0.15, (Math.random() - 0.5) * 0.6, Math.random() * 0.5, 40 + Math.random() * 30, 0.6 + Math.random() * 1.4);
+      flyer.style.width = flyer.style.height = s + 'px';
+      flyer.style.transform = `translate(${x - s / 2}px, ${y - s / 2}px) rotate(${tilt}deg)`;
+      if (Math.random() < sparkle)
+        spawn(x + (Math.random() - 0.5) * s * 0.4, y + s * 0.2, (Math.random() - 0.5) * 0.5, Math.random() * 0.4, 40 + Math.random() * 30, 0.6 + Math.random() * 1.3);
       t < 1 ? requestAnimationFrame(step) : done();
     };
     requestAnimationFrame(step);
   });
 }
-
-const flying = new Set();
-async function flight(slot, out, back, onAway) {
-  if (reduce || flying.has(slot)) { onAway?.(); return; }
-  flying.add(slot);
-  const home = center(slot);
-  const size = Math.max(home.w * 1.2, 60);
-  const flyer = document.createElement('div');
-  flyer.className = 'flyer';
-  flyer.style.width = flyer.style.height = size + 'px';
-  flyer.append(tpl.content.cloneNode(true));
-  document.body.append(flyer);
-  slot.classList.add('away');
-  await leg(flyer, size, out(home), 1300, 1);
-  onAway?.();
-  await sleep(500);
-  const h2 = center(slot);
-  await leg(flyer, size, back(h2), 1600, 2);
-  flyer.remove();
-  slot.classList.remove('away');
-  burst(h2.x, h2.y, 10);
-  flying.delete(slot);
+function makeFlyer() {
+  const f = document.createElement('div');
+  f.className = 'flyer';
+  f.append(tpl.content.cloneNode(true));
+  document.body.append(f);
+  return f;
 }
 
-// Any link to the Owl Post sends the header owl on a loop and back
-$$('a[href="#owl-post"]').forEach(a => a.addEventListener('click', () => {
-  const vis = getComputedStyle(navOwl).display !== 'none';
-  if (vis) flight(navOwl,
-    h => [h, { x: h.x - 140, y: h.y + H * 0.35 }, { x: W * 0.45, y: H * 0.8 }, { x: -90, y: H * 0.45 }],
-    h => [{ x: W + 90, y: H * 0.3 }, { x: W * 0.7, y: H * 0.65 }, { x: h.x + 60, y: h.y + H * 0.3 }, h]);
-}));
+let target = owl.parentElement, owlBusy = false, settle;
+async function goTo(spot) {
+  if (spot === owl.parentElement) return;
+  if (reduce) { spot.append(owl); return; }
+  owlBusy = true;
+  const a = box(owl), flyer = makeFlyer();
+  owl.classList.add('away');
+  spot.append(owl);
+  const b = box(owl);
+  const lift = Math.min(160, Math.abs(b.y - a.y) * 0.3 + 60);
+  await leg(flyer, [a, { x: a.x, y: a.y - lift }, { x: b.x, y: b.y - lift }, b], Math.max(a.w, 46), Math.max(b.w, 1), 1100, 0.5);
+  flyer.remove();
+  owl.classList.remove('away');
+  owlBusy = false;
+  if (target !== owl.parentElement) goTo(target);
+}
+const perchObs = new IntersectionObserver(entries => {
+  for (const e of entries) if (e.isIntersecting) target = perches.get(e.target);
+  clearTimeout(settle);
+  settle = setTimeout(() => { if (!owlBusy) goTo(target); }, 220);
+}, { rootMargin: '-30% 0px -45% 0px' });
+perches.forEach((_, sec) => perchObs.observe(sec));
 
-// "Send an owl" flies the big owl off with the letter, then opens mail
-$('[data-send-owl]').addEventListener('click', e => {
-  if (reduce) return;
+// "Send an owl": off with the letter (mail opens), then back to the window
+$('[data-send-owl]').addEventListener('click', async e => {
+  if (reduce || owlBusy) return;
   e.preventDefault();
   const href = e.currentTarget.href;
-  flight(postOwl,
-    h => [h, { x: h.x + W * 0.15, y: h.y - H * 0.3 }, { x: W * 0.8, y: H * 0.1 }, { x: W + 120, y: -80 }],
-    h => [{ x: -120, y: H * 0.2 }, { x: W * 0.2, y: H * 0.1 }, { x: h.x - 80, y: h.y - H * 0.2 }, h],
-    () => { location.href = href; });
+  owlBusy = true;
+  const h = box(owl), flyer = makeFlyer();
+  owl.classList.add('away');
+  await leg(flyer, [h, { x: h.x + W * 0.15, y: h.y - H * 0.3 }, { x: W * 0.8, y: H * 0.1 }, { x: W + 120, y: -80 }], h.w, 70, 1300, 1);
+  location.href = href;
+  await sleep(600);
+  const h2 = box(owl);
+  await leg(flyer, [{ x: -120, y: H * 0.2 }, { x: W * 0.2, y: H * 0.1 }, { x: h2.x - 80, y: h2.y - H * 0.2 }, h2], 70, h2.w, 1600, 1);
+  flyer.remove();
+  owl.classList.remove('away');
+  burst(h2.x, h2.y, 10);
+  owlBusy = false;
+  if (target !== owl.parentElement) goTo(target);
 });
+
+/* ---------- Marauder's-Map walker: footprints cross the top as you scroll ---------- */
+const walker = $('.walker'), prints = $('.prints', walker), tag = $('.tag', walker), roomEl = $('.room', walker);
+const corridor = $('.corridor', walker);
+const STEP = 46;
+let lastY = scrollY, acc = 0, side = 1, idle;
+function placeTicks() {
+  const max = root.scrollHeight - innerHeight;
+  corridor.replaceChildren(...$$('main > section:not(.hero)').map(sec => {
+    const i = document.createElement('i');
+    i.style.left = Math.min(100, (sec.offsetTop / max) * 100) + '%';
+    return i;
+  }));
+}
+function walkerX() {
+  const max = root.scrollHeight - innerHeight;
+  return (max > 0 ? scrollY / max : 0) * (walker.clientWidth - 8);
+}
+function onWalk() {
+  const dy = scrollY - lastY;
+  lastY = scrollY;
+  const x = walkerX();
+  tag.style.left = x + 'px';
+  acc += Math.abs(dy);
+  while (acc >= STEP) {
+    acc -= STEP;
+    side = -side;
+    prints.insertAdjacentHTML('beforeend', '<svg viewBox="0 0 20 40"><use href="#foot"/></svg>');
+    const f = prints.lastChild;
+    f.style.left = x + 'px';
+    f.style.top = 12 + side * 4 + 'px';
+    f.style.transform = `rotate(${dy >= 0 ? 90 : -90}deg)`;
+    if (prints.children.length > 18) prints.firstChild.remove();
+  }
+  walker.classList.add('moving');
+  clearTimeout(idle);
+  idle = setTimeout(() => walker.classList.remove('moving'), 1200);
+}
+const topbar = $('.topbar');
+addEventListener('scroll', () => { onWalk(); topbar.classList.toggle('scrolled', scrollY > 40); }, { passive: true });
+addEventListener('resize', placeTicks);
+addEventListener('load', placeTicks);
+placeTicks();
+onWalk();
+const roomObs = new IntersectionObserver(entries => {
+  for (const e of entries) if (e.isIntersecting) roomEl.textContent = e.target.dataset.room;
+}, { rootMargin: '-45% 0px -50% 0px' });
+$$('main > section').forEach(s => roomObs.observe(s));
 
 /* ---------- Copy email ---------- */
 const copied = $('.copied');
