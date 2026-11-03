@@ -213,12 +213,12 @@ html.wand-on .hero-lamp, html.drift-on .hero-lamp { opacity: 1; }
 .inscription {
   font: 400 clamp(3.6rem, 11vw, 9rem)/.95 "Harry P", var(--display); letter-spacing: .03em; color: #e9eff2;
 }
-/* poster-style steel: banded silver-blue gradient, brushed grain, bevel and dark rim from #hp-metal */
+/* silver, like the film titles */
 .hp-name {
   display: inline-block; padding: 0 .06em; color: transparent;
-  background: linear-gradient(178deg, #ffffff 0%, #eef4f7 18%, #c3d3db 34%, #7f97a3 47%, #3e5562 51%, #9fb4be 58%, #e4edf1 72%, #ffffff 80%, #93a9b4 100%);
+  background: linear-gradient(180deg, #ffffff 0%, #e6edf0 30%, #9fb0b8 48%, #5d6f78 52%, #c9d4d9 66%, #f4f7f8 82%, #a9b8bf 100%);
   -webkit-background-clip: text; background-clip: text;
-  filter: url(#hp-metal) drop-shadow(0 4px 2px rgba(0,0,0,.75)) drop-shadow(0 10px 24px rgba(0,0,0,.7)) drop-shadow(0 0 34px rgba(150,205,240,.22));
+  filter: drop-shadow(0 1px 0 rgba(255,255,255,.35)) drop-shadow(0 3px 0 rgba(10,20,26,.9)) drop-shadow(0 8px 18px rgba(0,0,0,.8)) drop-shadow(0 0 30px rgba(var(--glow), .2));
 }
 .role { font: 400 clamp(.95rem, 1.5vw, 1.1rem)/1.4 var(--mono); letter-spacing: .08em; color: var(--gold-hi); margin: 1.1rem 0 0; text-shadow: 0 1px 8px #000; }
 .follow { position: absolute; bottom: 26px; left: 50%; translate: -50% 0; display: flex; flex-direction: column; align-items: center; gap: 8px; text-decoration: none; font: italic 1rem/1 var(--fell); color: var(--gold-hi); }
@@ -577,20 +577,40 @@ html:not(.js) .env-seal, .envelope.open .env-seal { pointer-events: none; }
   .owlery { width: 220px; margin: 0 auto; }
 }
 
-/* ===== Footer ===== */
-.foot { position: relative; z-index: 1; padding: 150px var(--gutter) 34px; color: var(--stone); overflow: hidden;
-  background: linear-gradient(180deg, transparent, rgba(2,12,17,.75) 140px, #020c11); }
-.foot-castle { position: absolute; left: 50%; top: 0; width: min(1100px, 160vw); max-width: none; height: 150px; translate: -50% 0; fill: #072631; opacity: .9;
-  filter: drop-shadow(0 -1px 0 rgba(150,210,255,.45)) drop-shadow(0 0 14px rgba(120,190,230,.12)); pointer-events: none; }
-.foot-grid { position: relative; max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; padding: 28px 0 34px; border-top: 1px solid rgba(201,164,92,.25); }
+/* ===== Footer: a closing night scene ===== */
+.foot { position: relative; z-index: 1; overflow: hidden; color: var(--stone); background: linear-gradient(180deg, transparent, #061d26 22%, #04141b 58%, #020c11); }
+.foot-sky { position: absolute; inset: 0 0 auto; height: 70%; pointer-events: none; }
+.foot-sky .stars { position: absolute; inset: 0; opacity: .8;
+  background-image: radial-gradient(1.2px 1.2px at 20px 30px, #fff, transparent), radial-gradient(1px 1px at 90px 120px, #cfeaff, transparent), radial-gradient(1.4px 1.4px at 160px 60px, #fff, transparent), radial-gradient(1px 1px at 230px 170px, #fff6d5, transparent), radial-gradient(1px 1px at 60px 200px, #fff, transparent);
+  background-size: 260px 240px; }
+.foot-sky .s2 { background-position: 130px 90px; opacity: .45; }
+.foot.onscreen .foot-sky .s2 { animation: twinkle 4s ease-in-out infinite alternate; }
+@keyframes twinkle { to { opacity: .9; } }
+.foot-moon { position: absolute; right: 12%; top: 70px; width: 90px; height: 90px; border-radius: 50%; background: radial-gradient(circle at 40% 40%, #fff9e6, #e8dcb4 55%, #c9b98a);
+  box-shadow: 0 0 40px rgba(255,240,200,.45), 0 0 120px rgba(255,240,200,.2); opacity: .85; }
+.foot-hero { position: relative; max-width: 900px; margin: 0 auto; padding: clamp(110px, 14vw, 170px) var(--gutter) 40px; text-align: center; }
+.foot-kicker { margin: 0 0 14px; font: .9rem/1 var(--mono); color: #8fc3d2; }
+.foot-title { font: 600 clamp(2rem, 5vw, 3.6rem)/1.1 var(--display); color: #f4efe2; margin: 0 0 14px; }
+.hp-word { font: 400 1.25em/1 "Harry P", var(--display); letter-spacing: .02em; color: transparent;
+  background: linear-gradient(180deg, #ffffff 0%, #e6edf0 30%, #9fb0b8 48%, #5d6f78 52%, #c9d4d9 66%, #f4f7f8 82%, #a9b8bf 100%); -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 2px 0 rgba(10,20,26,.9)) drop-shadow(0 0 24px rgba(var(--glow), .3)); }
+.foot-sub { margin: 0 auto 26px; max-width: 34rem; color: var(--text-soft); font-size: 1.12rem; }
+.foot-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.foot-castle { position: relative; display: flex; justify-content: center; margin-top: 30px; pointer-events: none; }
+.foot-castle .castle { position: static; left: auto; translate: none; width: min(640px, 96vw); max-width: none; height: auto; aspect-ratio: 1280 / 853; margin-bottom: -2px; }
+.foot-castle .castle .win { animation: none; }
+.foot.onscreen .foot-castle .win.f { animation: window-glow 5s ease-in-out infinite alternate; }
+@keyframes window-glow { to { opacity: .35; } }
+.foot-ground { position: relative; background: #020c11; box-shadow: 0 -30px 40px #020c11; padding: 0 var(--gutter) 30px; }
+.foot-grid { max-width: 1080px; margin: 0 auto; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; padding: 34px 0 30px; }
 .foot-brand .mono { display: inline-block; margin-bottom: 14px; }
 .foot-name { margin: 0; font: 500 1.35rem/1.2 var(--display); color: #f4efe2; letter-spacing: .04em; }
 .foot-role { margin: 4px 0 14px; font: .9rem/1.4 var(--mono); color: var(--gold-hi); }
 .foot .local-time { margin: 0; font: 500 1rem/1.5 var(--body); color: var(--text-soft); max-width: 22rem; }
 .foot-col h2 { margin: 0 0 14px; font: .84rem/1 var(--mono); color: var(--gold); letter-spacing: .08em; text-transform: lowercase; }
 .foot-col li + li { margin-top: 4px; }
-.foot-col a { display: inline-block; padding: 5px 0; color: #eef0ec; text-decoration: none; font-size: 1.05rem; transition: color .2s; }
-.foot-col a:hover, .foot-col a:focus-visible { color: var(--gold-hi); }
+.foot-col a { display: inline-block; padding: 5px 0; color: #eef0ec; text-decoration: none; font-size: 1.05rem; transition: color .2s, translate .2s; }
+.foot-col a:hover, .foot-col a:focus-visible { color: var(--gold-hi); translate: 4px 0; }
 .foot-bar { max-width: 1080px; margin: 0 auto; display: flex; align-items: center; gap: 10px 28px; flex-wrap: wrap; padding: 18px 0; border-top: 1px solid rgba(195,205,208,.14); font-size: .92rem; }
 .foot-bar p { margin: 0; }
 .built { font: .84rem/1.5 var(--mono); }
@@ -599,8 +619,7 @@ html:not(.js) .env-seal, .envelope.open .env-seal { pointer-events: none; }
 .credits { max-width: 1080px; margin: 6px auto 0; font-size: .84rem; color: #8fa0a6; }
 .local-time { font: 500 1.02rem/1.4 var(--body); color: var(--text-soft); }
 @media (max-width: 760px) {
-  .foot { padding-top: 110px; }
-  .foot-castle { height: 110px; }
+  .foot-moon { width: 60px; height: 60px; top: 50px; right: 8%; }
   .foot-grid { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
   .foot-brand { grid-column: 1 / -1; }
   .to-top { margin-left: 0; }
@@ -702,10 +721,12 @@ html.intro .topbar, html.intro .walker { animation: copy-in .8s ease-out 1.4s bo
 .patronus { position: fixed; left: 0; top: 0; z-index: 87; width: 220px; height: 183px; pointer-events: none; opacity: 0; will-change: transform, opacity;
   filter: drop-shadow(0 0 6px rgba(210,240,255,.95)) drop-shadow(0 0 22px rgba(150,210,255,.75)) drop-shadow(0 0 60px rgba(120,190,255,.45)); }
 .doe { width: 100%; height: 100%; overflow: visible; }
-.doe path, .doe ellipse, .doe circle { fill: url(#doe-fill); stroke: rgba(240,250,255,.95); stroke-width: 1.1; stroke-linejoin: round; }
+.doe .main, .doe .far { fill: #e8f6ff; stroke: #e8f6ff; }
+.doe [data-leg] path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.doe .far { opacity: .5; }
+.doe .lines { fill: none; stroke: rgba(255,255,255,.8); }
 .doe .eye { fill: #fff; stroke: none; }
-.doe .far, .doe .ear-far { opacity: .5; }
-.doe .strand { fill: none; stroke: rgba(255,255,255,.75); stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 10 16; animation: strand 1.6s linear infinite; }
+.doe .strand { stroke-width: 1.3; stroke-linecap: round; stroke-dasharray: 10 16; animation: strand 1.6s linear infinite; }
 .doe .tail { transform-box: fill-box; transform-origin: 100% 100%; animation: flick .4s ease-in-out infinite alternate; }
 @keyframes strand { to { stroke-dashoffset: -52; } }
 @keyframes flick { to { transform: rotate(12deg); } }
