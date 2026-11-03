@@ -699,7 +699,7 @@ const COMMANDS = [
   ['Go to Contact', 'cd owl-post', go('owl-post')],
   ['Back to the Great Hall', 'cd ~', go('great-hall')],
   ['Spell Class', 'learn commands as spells', () => (location.href = 'spell-class.html')],
-  ['Accio resume', 'resume on request', go('owl-post')],
+  ['Accio resume', 'opens on Google Drive', open('https://drive.google.com/file/d/1hk_MAIPaLUcRsX-Tg9IukpXzCxVgiDun/view?usp=sharing')],
   ['Copy email', 'reach.saksham.agrawal@gmail.com', () => copyEmail()],
   ['Sort me', 'sorting hat quiz', () => { go('sorting-hat')(); setTimeout(() => $('[data-hat="me"]').click(), 600); }],
   ['Lumos / Nox', 'toggle the wand light', () => root.classList.toggle('nox')],
@@ -736,8 +736,10 @@ addEventListener('keydown', e => {
   if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !typing && !palette.open)) { e.preventDefault(); openPalette(); }
 });
 
-/* ---------- Footer ---------- */
+/* ---------- Footer: the hero's castle, windows lit, closes the night ---------- */
 const footer = $('.foot');
+$('.foot-castle').append($('.scene .castle').cloneNode(true));
+new IntersectionObserver(([e]) => footer.classList.toggle('onscreen', e.isIntersecting)).observe(footer);
 $$('[data-top]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }));
 
 /* ---------- Patronus: a silver doe leaps from the wand, picks her way across, pauses, then bounds away ---------- */
@@ -757,13 +759,18 @@ const LEAP = { // takeoff, mid-air, landing
   fn: [[25, 80], [-62, 12], [-24, 0]], ff: [[35, 90], [-52, 22], [-14, 6]],
   rn: [[45, -6], [58, 26], [-32, 40]], rf: [[36, 0], [62, 32], [-22, 44]],
 };
+// hip/shoulder, segment lengths and stroke widths (thick at the top, slender down to the hoof)
+const LEGS = {
+  fn: { hip: [150, 98], len: [34, 30, 9], w: [12, 6, 5] }, ff: { hip: [142, 98], len: [34, 30, 9], w: [12, 6, 5] },
+  rn: { hip: [72, 84], len: [30, 27, 28, 9], w: [20, 11, 6, 5], rear: true }, rf: { hip: [80, 84], len: [30, 27, 28, 9], w: [20, 11, 6, 5], rear: true },
+};
 const smooth = t => t * t * (3 - 2 * t);
 const lerp = (a, b, t) => a + (b - a) * t;
 const key3 = ([a, b, c], t) => t < 0.5 ? lerp(a, b, smooth(t * 2)) : lerp(b, c, smooth(t * 2 - 1));
 function patronus() {
   if (reduce) return;
   const wandOn = root.classList.contains('wand-on') && px > 0;
-  const src = wandOn ? { x: px, y: py } : center($('.foot-castle', footer));
+  const src = wandOn ? { x: px, y: py } : center($('.foot-title', footer));
   // the room brightens for a moment, like a real cast
   flash.animate([{ opacity: 0 }, { opacity: 0.22, offset: 0.18 }, { opacity: 0 }], { duration: 1800, easing: 'ease-out' });
   burst(src.x, src.y, 40, SILVER);
@@ -772,9 +779,25 @@ function patronus() {
   el.append(doeTpl.content.cloneNode(true));
   document.body.append(el);
   const rig = {};
-  for (const k of ['fn', 'ff', 'rn', 'rf']) { const u = $('.u.' + k, el); rig[k] = [u, $('.l', u)]; }
-  const head = $('.head', el);
-  const pose = (k, a, b) => { rig[k][0].setAttribute('transform', `rotate(${a})`); rig[k][1].setAttribute('transform', `rotate(${b})`); };
+  for (const k in LEGS) {
+    const g = $(`[data-leg="${k}"]`, el), L = LEGS[k];
+    rig[k] = L.w.map(w => {
+      const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      p.setAttribute('stroke-width', w);
+      g.append(p);
+      return p;
+    });
+  }
+  const heads = $$('.head, .head-lines', el);
+  // s swings the whole leg (positive = back), b bends the joint; angles in degrees, 0 = straight down
+  const pose = (k, s, b) => {
+    const L = LEGS[k], rad = Math.PI / 180;
+    const abs = L.rear ? [-20 + s, 30 + s + b * 0.5, s - b * 0.9, s - b * 0.9 - 25] : [s, s + b, s + b - 25 - b * 0.3];
+    let [x, y] = L.hip;
+    const pts = [[x, y]];
+    abs.forEach((a, i) => { x -= Math.sin(a * rad) * L.len[i]; y += Math.cos(a * rad) * L.len[i]; pts.push([x, y]); });
+    rig[k].forEach((p, i) => p.setAttribute('d', `M${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}L${pts[i + 1][0].toFixed(1)} ${pts[i + 1][1].toFixed(1)}`));
+  };
 
   // she travels away from the wand's side: lands near one edge, ends at the other
   const dir = src.x < W / 2 ? 1 : -1, ground = Math.min(H * 0.8, H - 60);
@@ -823,7 +846,7 @@ function patronus() {
       for (const k in LEAP) pose(k, key3(LEAP[k].map(v => v[0]), p), key3(LEAP[k].map(v => v[1]), p));
       if (i === 2) { op = 0.95 * (1 - smooth(clamp((p - 0.35) / 0.65, 0, 1))); sc = 1 + 0.12 * p; }
     }
-    head.setAttribute('transform', `rotate(${headA} 146 76)`);
+    heads.forEach(g => g.setAttribute('transform', `rotate(${headA} 146 76)`));
     el.style.opacity = op;
     el.style.transform = `translate3d(${x - 110}px, ${y - 167}px, 0) rotate(${pitch * dir}deg) scale(${sc * dir}, ${sc})`;
     // light pooled on the ground beneath her
