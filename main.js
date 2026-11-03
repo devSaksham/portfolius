@@ -736,68 +736,111 @@ addEventListener('keydown', e => {
   if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !typing && !palette.open)) { e.preventDefault(); openPalette(); }
 });
 
-/* ---------- Footers: compare two versions with ?footer=parchment ---------- */
-const night = $('.foot-night'), parchment = $('.foot-parchment');
-if (new URLSearchParams(location.search).get('footer') === 'parchment') { night.hidden = true; parchment.hidden = false; }
-const footer = night.hidden ? parchment : night;
+/* ---------- Footer ---------- */
+const footer = $('.foot');
 $$('[data-top]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }));
 
-/* ---------- Patronus: at the bottom, a silver doe bursts from the wand and gallops edge to edge ---------- */
+/* ---------- Patronus: a silver doe leaps from the wand, picks her way across, pauses, then bounds away ---------- */
 let patronusArmed = true, lastPatronus = -Infinity;
 new IntersectionObserver(([e]) => {
   if (!e.isIntersecting) { patronusArmed = true; return; }
   if (patronusArmed && performance.now() - lastPatronus > 20000) { patronusArmed = false; lastPatronus = performance.now(); patronus(); }
-}, { threshold: 0.6 }).observe(footer);
+}, { threshold: 0.5 }).observe(footer);
 const doeTpl = $('#doe-tpl');
 const flash = Object.assign(document.createElement('div'), { className: 'cast-flash' });
 const beam = Object.assign(document.createElement('div'), { className: 'patronus-beam' });
 document.body.append(flash, beam);
-const bez = ([a, b, c, d], e) => { const u = 1 - e; return u * u * u * a + 3 * u * u * e * b + 3 * u * e * e * c + e * e * e * d; };
+const lightPool = Object.assign(document.createElement('div'), { className: 'patronus-pool' });
+document.body.append(lightPool);
+// leg poses in degrees [upper, lower]; positive swings back. Keys: front/rear, near/far
+const LEAP = { // takeoff, mid-air, landing
+  fn: [[25, 80], [-62, 12], [-24, 0]], ff: [[35, 90], [-52, 22], [-14, 6]],
+  rn: [[45, -6], [58, 26], [-32, 40]], rf: [[36, 0], [62, 32], [-22, 44]],
+};
+const smooth = t => t * t * (3 - 2 * t);
+const lerp = (a, b, t) => a + (b - a) * t;
+const key3 = ([a, b, c], t) => t < 0.5 ? lerp(a, b, smooth(t * 2)) : lerp(b, c, smooth(t * 2 - 1));
 function patronus() {
   if (reduce) return;
   const wandOn = root.classList.contains('wand-on') && px > 0;
-  const src = wandOn ? { x: px, y: py } : center($('.mini-castle, .ink-castle', footer));
-  for (let i = 0; i < 46; i++) {
-    const a = Math.random() * Math.PI * 2, s = 0.5 + Math.random() * 2.2;
-    spawn(src.x, src.y, Math.cos(a) * s, Math.sin(a) * s - 1, 50 + Math.random() * 40, 0.8 + Math.random() * 1.8, SILVER);
-  }
+  const src = wandOn ? { x: px, y: py } : center($('.foot-castle', footer));
   // the room brightens for a moment, like a real cast
-  flash.animate([{ opacity: 0 }, { opacity: 0.22, offset: 0.18 }, { opacity: 0 }], { duration: 1600, easing: 'ease-out' });
+  flash.animate([{ opacity: 0 }, { opacity: 0.22, offset: 0.18 }, { opacity: 0 }], { duration: 1800, easing: 'ease-out' });
+  burst(src.x, src.y, 40, SILVER);
   const el = document.createElement('div');
   el.className = 'patronus';
   el.append(doeTpl.content.cloneNode(true));
   document.body.append(el);
-  // she runs to the left edge, across to the right edge, back to the left, then dissolves
-  const band = H * 0.62, E = 90;
-  const stops = [src, { x: E, y: band }, { x: W - E, y: band - H * 0.06 }, { x: E, y: band - H * 0.12 }];
-  const legs = stops.slice(1).map((b, i) => {
-    const a = stops[i], dx = b.x - a.x;
-    return { x: [a.x, a.x + dx * 0.33, b.x - dx * 0.33, b.x], y: [a.y, a.y + (b.y - a.y) * 0.33, b.y, b.y], ms: 500 + Math.abs(dx) * 1.05 };
-  });
-  const DUR = legs.reduce((t, g) => t + g.ms, 0), t0 = performance.now();
-  let face = -1, lx = src.x, ly = src.y, puffed = false;
+  const rig = {};
+  for (const k of ['fn', 'ff', 'rn', 'rf']) { const u = $('.u.' + k, el); rig[k] = [u, $('.l', u)]; }
+  const head = $('.head', el);
+  const pose = (k, a, b) => { rig[k][0].setAttribute('transform', `rotate(${a})`); rig[k][1].setAttribute('transform', `rotate(${b})`); };
+
+  // she travels away from the wand's side: lands near one edge, ends at the other
+  const dir = src.x < W / 2 ? 1 : -1, ground = Math.min(H * 0.8, H - 60);
+  const x0 = dir > 0 ? clamp(src.x - 60, 110, W * 0.16) : clamp(src.x + 60, W * 0.84, W - 110);
+  const walkTo = x0 + dir * Math.min(170, W * 0.22), xEnd = dir > 0 ? W - 40 : 40;
+  const T = { emerge: 900, land: 300, walk: 2100, look: 900, gather: 300, leap: 820 };
+  const t1 = T.emerge, t2 = t1 + T.land, t3 = t2 + T.walk, t4 = t3 + T.look, t5 = t4 + T.gather, END = t5 + T.leap * 3;
+  const hops = [0, 1, 2].map(i => ({ a: lerp(walkTo, xEnd, i / 3), b: lerp(walkTo, xEnd, (i + 1) / 3), h: [70, 96, 150][i], rise: i === 2 ? 150 : 0 }));
+  const t0 = performance.now();
   const step = now => {
-    const ms = clamp(now - t0, 0, DUR), T = ms / DUR;
-    let k = 0, acc = 0;
-    while (k < legs.length - 1 && ms > acc + legs[k].ms) acc += legs[k++].ms;
-    const g = legs[k], e = ease(clamp((ms - acc) / g.ms, 0, 1));
-    const x = bez(g.x, e), y = bez(g.y, e) - Math.abs(Math.sin(ms / 160)) * 10, vx = x - lx;
-    lx = x; ly = y;
-    if (Math.abs(vx) > 0.4) face += (Math.sign(vx) - face) * 0.16; // turns through edge-on at each edge
-    const sc = T < 0.06 ? 0.3 + 0.7 * (T / 0.06) : T > 0.92 ? 1 + (T - 0.92) * 3 : 1;
-    const op = T < 0.05 ? T / 0.05 : T > 0.92 ? Math.max(0, 1 - (T - 0.92) / 0.07) : 0.95;
-    el.style.opacity = op;
-    el.style.transform = `translate3d(${x - 80}px, ${y - 64}px, 0) scale(${sc * face}, ${sc})`;
-    // a ray of light from the wand to the doe, fading as she reaches the first edge
-    const bo = Math.max(0, 1 - ms / legs[0].ms);
-    if (bo > 0) {
-      const sx = wandOn ? px : src.x, sy = wandOn ? py : src.y, dist = Math.hypot(x - sx, y - sy);
+    const t = clamp(now - t0, 0, END);
+    let x, y = ground, pitch = 0, sc = 1, op = 0.95, headA = 0, air = 0;
+    if (t < t1) { // leaps out of the wand light and lands
+      const p = t / t1, e = smooth(p);
+      x = lerp(src.x, x0, e); y = lerp(src.y, ground, e) - 140 * 4 * p * (1 - p);
+      sc = 0.45 + 0.55 * e; op = Math.min(0.95, p * 2.2); air = 1 - p;
+      pitch = lerp(-12, 8, p);
+      for (const k in LEAP) pose(k, key3(LEAP[k].map(v => v[0]), p), key3(LEAP[k].map(v => v[1]), p));
+      const bo = 1 - p, sx = wandOn ? px : src.x, sy = wandOn ? py : src.y, dist = Math.hypot(x - sx, y - 80 - sy);
       beam.style.opacity = bo * 0.85;
-      beam.style.transform = `translate3d(${sx}px, ${sy - 6}px, 0) rotate(${Math.atan2(y - sy, x - sx)}rad) scaleX(${dist / 100})`;
-    } else beam.style.opacity = 0;
-    if (op > 0.05) for (let i = 0; i < 2; i++) spawn(x - face * 50 + (Math.random() - 0.5) * 30, y + 20 + (Math.random() - 0.5) * 30, -face * Math.random() * 0.8, 0.2 + Math.random() * 0.5, 50 + Math.random() * 30, 0.6 + Math.random() * 1.4, SILVER);
-    if (!puffed && T > 0.93) { puffed = true; burst(x, y, 50, SILVER); }
-    T < 1 ? requestAnimationFrame(step) : el.remove();
+      beam.style.transform = `translate3d(${sx}px, ${sy - 6}px, 0) rotate(${Math.atan2(y - 80 - sy, x - sx)}rad) scaleX(${dist / 100})`;
+    } else if (t < t2) { // lands softly
+      beam.style.opacity = 0;
+      const p = (t - t1) / T.land;
+      x = x0; y = ground + Math.sin(p * Math.PI) * 4;
+      for (const k in LEAP) pose(k, lerp(LEAP[k][2][0], 0, p), lerp(LEAP[k][2][1], 0, p));
+    } else if (t < t3) { // picks her way across, head held high
+      const p = (t - t2) / T.walk, ph = (t - t2) / 900;
+      x = lerp(x0, walkTo, p); y = ground - Math.abs(Math.sin(ph * Math.PI * 2)) * 2;
+      const off = { rn: 0, fn: 0.25, rf: 0.5, ff: 0.75 };
+      for (const k in off) { const s = Math.sin((ph + off[k]) * Math.PI * 2); pose(k, -18 * s, 34 * Math.max(0, Math.cos((ph + off[k]) * Math.PI * 2))); }
+      headA = -3 + Math.sin(ph * Math.PI * 4) * 1.5;
+    } else if (t < t4) { // stops, lifts a foreleg and looks back at you
+      const p = (t - t3) / T.look, s = Math.sin(Math.min(1, p * 1.6) * Math.PI / 2);
+      x = walkTo;
+      pose('fn', -22 * s, 88 * s); pose('ff', 0, 0); pose('rn', 0, 0); pose('rf', 0, 0);
+      headA = -9 * s;
+    } else if (t < t5) { // gathers
+      const p = (t - t4) / T.gather;
+      x = walkTo; y = ground + 6 * p; pitch = 4 * p; headA = lerp(-9, 0, p);
+      for (const k in LEAP) pose(k, lerp(k === 'fn' ? -22 : 0, LEAP[k][0][0], p), lerp(k === 'fn' ? 88 : 0, LEAP[k][0][1], p));
+    } else { // three long, unhurried bounds; the last carries her up and away
+      const i = Math.min(2, Math.floor((t - t5) / T.leap)), p = clamp((t - t5 - i * T.leap) / T.leap, 0, 1), hp = hops[i];
+      x = lerp(hp.a, hp.b, p); y = ground - hp.h * 4 * p * (1 - p) - hp.rise * smooth(p);
+      pitch = lerp(-10, i === 2 ? -6 : 9, p); air = 4 * p * (1 - p);
+      for (const k in LEAP) pose(k, key3(LEAP[k].map(v => v[0]), p), key3(LEAP[k].map(v => v[1]), p));
+      if (i === 2) { op = 0.95 * (1 - smooth(clamp((p - 0.35) / 0.65, 0, 1))); sc = 1 + 0.12 * p; }
+    }
+    head.setAttribute('transform', `rotate(${headA} 146 76)`);
+    el.style.opacity = op;
+    el.style.transform = `translate3d(${x - 110}px, ${y - 167}px, 0) rotate(${pitch * dir}deg) scale(${sc * dir}, ${sc})`;
+    // light pooled on the ground beneath her
+    lightPool.style.opacity = op * (1 - Math.min(1, (ground - y) / 160)) * 0.9;
+    lightPool.style.transform = `translate3d(${x - 120}px, ${ground - 18}px, 0)`;
+    // wisps swirl around her and trail behind
+    if (op > 0.05) {
+      const a = now / 260 + Math.random();
+      spawn(x + Math.cos(a) * 70, y - 80 + Math.sin(a) * 36, -Math.sin(a) * 0.7 - dir * 0.3, Math.cos(a) * 0.4 - 0.15, 45 + Math.random() * 30, 0.6 + Math.random() * 1.2, SILVER);
+      if (air > 0.2 || Math.random() < 0.3) spawn(x - dir * 80 + (Math.random() - 0.5) * 30, y - 60 + (Math.random() - 0.5) * 40, -dir * Math.random() * 0.6, 0.1 + Math.random() * 0.3, 55 + Math.random() * 30, 0.6 + Math.random() * 1.4, SILVER);
+    }
+    if (t >= END) {
+      burst(x, y - 90, 60, SILVER);
+      el.remove(); lightPool.style.opacity = 0; beam.style.opacity = 0;
+      return;
+    }
+    requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
 }
