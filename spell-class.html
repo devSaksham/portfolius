@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spell Class · Saksham Agrawal</title>
+<meta name="description" content="Learn real terminal, git and Docker commands as spells. Cast them right to win points for your house.">
+<meta name="theme-color" content="#04141b">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2304141b'/%3E%3Cpath d='M18 50 46 14' stroke='%236a4426' stroke-width='5' stroke-linecap='round'/%3E%3Ccircle cx='47' cy='13' r='5' fill='%23bfe8ff'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="sc-page">
+<header class="topbar scrolled">
+  <a class="mono" href="./" aria-label="Saksham Agrawal, back to the portfolio">S<span>A</span></a>
+  <a class="sc-back" href="./#spellbook">← Back to Hogwarts</a>
+</header>
+
+<main class="sc" id="main">
+  <header class="sc-head">
+    <h1>Spell Class</h1>
+    <p class="lede">Real terminal, git and Docker commands, taught as spells. The professor sets a task; cast the right command to win points for your house.</p>
+  </header>
+
+  <section class="sc-house" aria-label="Your house">
+    <p class="sc-house-q">Which house are you casting for?</p>
+    <div class="sc-houses" role="radiogroup" aria-label="House">
+      <button type="button" role="radio" data-house="gryffindor">Gryffindor</button>
+      <button type="button" role="radio" data-house="ravenclaw">Ravenclaw</button>
+      <button type="button" role="radio" data-house="hufflepuff">Hufflepuff</button>
+      <button type="button" role="radio" data-house="slytherin">Slytherin</button>
+    </div>
+    <p class="sc-points" aria-live="polite"></p>
+  </section>
+
+  <div class="sc-years" role="tablist" aria-label="Year"></div>
+
+  <article class="sc-lesson" aria-live="off">
+    <p class="sc-count"></p>
+    <p class="sc-task"></p>
+    <form class="sc-term" autocomplete="off">
+      <label class="sr-only" for="sc-input">Your command</label>
+      <span class="sc-prompt" aria-hidden="true">$</span>
+      <input id="sc-input" type="text" spellcheck="false" autocapitalize="off" placeholder="type the command…">
+      <button type="submit" class="btn btn-gold">Cast</button>
+    </form>
+    <div class="sc-choices" hidden></div>
+    <div class="sc-result" role="status" aria-live="polite"></div>
+    <div class="sc-tools">
+      <button type="button" class="btn btn-ghost" data-act="hint">Hint</button>
+      <button type="button" class="btn btn-ghost" data-act="mode">Choose instead</button>
+      <button type="button" class="btn btn-ghost" data-act="next">Next lesson →</button>
+    </div>
+  </article>
+
+  <ol class="sc-progress" aria-label="Lessons this year"></ol>
+  <p class="sc-note">Your house and points are kept in this browser only.</p>
+</main>
+
+<script src="spell-class.js" defer></script>
+</body>
+</html>
