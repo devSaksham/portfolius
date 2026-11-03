@@ -152,6 +152,14 @@ pad.addEventListener('click', launch);
 /* ---------- Background world: faint per-section drawings + a corridor, scrolling with the page ---------- */
 const worldClip = $('.world-clip'), world = $('.world'), lamp = $('.lamp'), lampWorld = $('.lamp-world');
 const hero = $('.hero'), heroLamp = $('.hero-lamp'), heroLampIn = $('.hero-lamp-in');
+// the wand-lit castle is a copy of the hero castle with a stone texture (cloned rather than shipped twice in the HTML)
+const castleCopy = () => { const c = $('.scene .castle').cloneNode(true); c.querySelector('#keep')?.removeAttribute('id'); return c; };
+{
+  const lit = castleCopy();
+  lit.classList.add('castle-lit');
+  lit.insertAdjacentHTML('afterbegin', '<defs><pattern id="stone" width="16" height="9" patternUnits="userSpaceOnUse"><rect width="16" height="9" fill="#1a4352"/><path d="M0 8.5H16M5 0V8.5M13 0V4" stroke="#2f6476" stroke-width=".7"/></pattern></defs>');
+  heroLampIn.append(lit);
+}
 const PAR = 0.92; // the world drifts slightly slower than the page
 const rider = document.createElement('div');
 rider.className = 'rider';
@@ -184,12 +192,17 @@ function rideStep(now) {
 }
 const artFor = { 'what-i-do': 'what-i-do', 'room-of-requirement': 'room-of-requirement', 'sorting-hat': 'sorting-hat', journey: 'journey',
   spellbook: 'spellbook', records: 'records', 'trophy-room': 'trophies', 'owl-post': 'owl-post' };
+let builtFor = '';
 function buildWorld() {
+  // only rebuild when the layout actually changed (fonts, images and the ledger all nudge <main>)
+  const secs = $$('main > section'), sig = W + ':' + H + ':' + secs.map(sec => sec.offsetTop + '+' + sec.offsetHeight).join(',');
+  if (sig === builtFor) return;
+  builtFor = sig;
   worldClip.style.height = world.style.height = lampWorld.style.height = '0px';
   const docH = root.scrollHeight, w = Math.min(1500, W), ph = w * 1000 / 1200;
   const pts = [];
   let html = '';
-  for (const sec of $$('main > section')) {
+  for (const sec of secs) {
     const top = sec.offsetTop, h = sec.offsetHeight;
     // pre-shift so each drawing lines up with its section when the section is centred on screen
     const shift = (1 - PAR) * Math.max(0, top + h / 2 - H / 2);
@@ -207,10 +220,15 @@ function buildWorld() {
   html += `<svg class="corridor-line" viewBox="0 0 ${W} ${docH}" preserveAspectRatio="none" style="top:0;height:${docH}px"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="6 9"/>` +
     pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="none" stroke="currentColor"/>`).join('') + '</svg>';
   world.innerHTML = lampWorld.innerHTML = html;
-  // sample the guide line so the broom rider can follow it (the path only ever runs downwards)
-  const line = $('.corridor-line path', world), len = line.getTotalLength();
+  // sample the guide line for the broom rider straight from its curves (getPointAtLength on a 14,000px path took ~2s)
   track = [];
-  for (let l = 0; l <= len; l += 6) { const q = line.getPointAtLength(l); track.push([q.x, q.y]); }
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], m = (y0 + y1) / 2, n = Math.max(2, Math.ceil((y1 - y0) / 6));
+    for (let j = i === 1 ? 0 : 1; j <= n; j++) {
+      const t = j / n, u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, e = t * t * t;
+      track.push([a * x0 + b * x0 + c * x1 + e * x1, a * y0 + b * m + c * m + e * y1]);
+    }
+  }
   ride();
   worldClip.style.height = world.style.height = lampWorld.style.height = docH + 'px';
   heroLampIn.style.width = hero.offsetWidth + 'px';
@@ -220,7 +238,7 @@ function buildWorld() {
 let rebuildT;
 const scheduleBuild = () => { clearTimeout(rebuildT); rebuildT = setTimeout(buildWorld, 180); };
 new ResizeObserver(scheduleBuild).observe($('main'));
-addEventListener('load', buildWorld);
+addEventListener('load', scheduleBuild);
 
 /* ---------- The wand (desktop) or a slow drifting light (touch): moves the lamps by transform only ---------- */
 const wand = $('.wand'), hat = $('.hat'), hatSec = $('#sorting-hat');
@@ -238,9 +256,11 @@ function frame() {
   if (fine) {
     tilt += (clamp((px - lastPX) * 0.6, -10, 10) - tilt) * 0.2;
     lastPX = px;
+    // reads first, writes after, so the frame never forces a layout
+    const r = hatSec.classList.contains('onscreen') && !hat.classList.contains('thinking') ? hat.getBoundingClientRect() : null;
     wand.style.transform = `translate3d(${px - 13}px, ${py - 2.2}px, 0) rotate(${-32 + tilt}deg)`; // tip sits on the pointer
-    if (hatSec.classList.contains('onscreen') && !hat.classList.contains('thinking')) {
-      const r = hat.getBoundingClientRect(), dx = px - (r.left + r.width / 2), dy = py - (r.top + r.height / 2);
+    if (r) {
+      const dx = px - (r.left + r.width / 2), dy = py - (r.top + r.height / 2);
       hat.style.transform = Math.hypot(dx, dy) < 420 ? `rotate(${clamp(dx / 40, -8, 8)}deg)` : '';
     }
     if (Math.abs(tilt) > 0.3) queue();
@@ -527,7 +547,9 @@ $('[data-hat="saksham"]').addEventListener('click', async () => {
 hat.addEventListener('click', () => { if (!hatBusy) { speak(POKE[(Math.random() * POKE.length) | 0]); wobble(600); } });
 
 /* ---------- House Points Ledger: LeetCode / GitHub heatmaps + contest rating, from data/activity.json ---------- */
-const fmt = d => d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+// one formatter each, reused for all 371 cells (toLocaleDateString per cell was most of the ledger's cost)
+const dayFmt = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+const monFmt = new Intl.DateTimeFormat('en-GB', { month: 'short', timeZone: 'UTC' });
 const iso = d => d.toISOString().slice(0, 10);
 let ledgerSrc = 'leetcode', activity = null;
 function streaks(days, end) {
@@ -547,23 +569,16 @@ function drawHeatmap(data, src) {
   const end = new Date(data.updated + 'T00:00:00Z'), start = new Date(end);
   start.setUTCDate(start.getUTCDate() - 7 * 52 - end.getUTCDay());
   const grid = $('.ledger-grid'), months = $('.ledger-months');
-  grid.replaceChildren(); months.replaceChildren();
-  let total = 0, week = 0;
+  let total = 0, week = 0, cells = '', labels = '';
+  const unit = src === 'leetcode' ? 'submission' : 'contribution';
   for (const d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
     const n = set.days[iso(d)] || 0;
     total += n;
-    const cell = document.createElement('i');
-    cell.className = 'l' + (n === 0 ? 0 : n < 3 ? 1 : n < 6 ? 2 : n < 10 ? 3 : 4);
-    cell.title = `${n} ${src === 'leetcode' ? 'submission' : 'contribution'}${n === 1 ? '' : 's'} · ${fmt(d)}`;
-    grid.append(cell);
-    if (d.getUTCDay() === 0 && d.getUTCDate() <= 7) {
-      const m = document.createElement('span');
-      m.textContent = d.toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' });
-      m.style.left = week * 16 + 'px';
-      months.append(m);
-    }
+    cells += `<i class="l${n === 0 ? 0 : n < 3 ? 1 : n < 6 ? 2 : n < 10 ? 3 : 4}" title="${n} ${unit}${n === 1 ? '' : 's'} · ${dayFmt.format(d)}"></i>`;
+    if (d.getUTCDay() === 0 && d.getUTCDate() <= 7) labels += `<span style="left:${week * 16}px">${monFmt.format(d)}</span>`;
     if (d.getUTCDay() === 6) week++;
   }
+  grid.innerHTML = cells; months.innerHTML = labels;
   const { cur, best } = streaks(set.days, end);
   if (src === 'leetcode') {
     const s = set.solved || {};
@@ -640,7 +655,8 @@ const ago = t => {
   const d = Math.round((Date.now() - new Date(t)) / 864e5);
   return d <= 0 ? 'today' : d === 1 ? 'yesterday' : d < 31 ? `${d}d ago` : `${Math.round(d / 30)}mo ago`;
 };
-fetch('https://api.github.com/users/devSaksham/repos?per_page=100&type=owner&sort=pushed').then(r => r.ok ? r.json() : Promise.reject()).then(repos => {
+const whenIdle = f => (window.requestIdleCallback || (cb => setTimeout(cb, 1200)))(f, { timeout: 3000 });
+whenIdle(() => fetch('https://api.github.com/users/devSaksham/repos?per_page=100&type=owner&sort=pushed').then(r => r.ok ? r.json() : Promise.reject()).then(repos => {
   const own = repos.filter(r => !r.fork), langs = {};
   own.forEach(r => { if (r.language) langs[r.language] = (langs[r.language] || 0) + 1; });
   const top = Object.entries(langs).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([l]) => l);
@@ -652,7 +668,7 @@ fetch('https://api.github.com/users/devSaksham/repos?per_page=100&type=owner&sor
     sb.textContent = `last push ${ago(latest.pushed_at)} · ${latest.name}`;
     sb.hidden = false;
   }
-}).catch(() => {});
+}).catch(() => {}));
 
 /* ---------- Local time in Dehradun (status bar, Owl Post, footer) ---------- */
 function tickClock() {
@@ -736,21 +752,15 @@ addEventListener('keydown', e => {
   if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !typing && !palette.open)) { e.preventDefault(); openPalette(); }
 });
 
-/* ---------- Footer: a small castle on the horizon, links on house banners (or the classic columns) ---------- */
+/* ---------- Footer: a small castle on the horizon, then the classic columns (or house banners) ---------- */
 const footer = $('.foot'), footCastle = $('.foot-castle');
-footCastle.append($('.scene .castle').cloneNode(true));
+footCastle.append(castleCopy());
 new IntersectionObserver(([e]) => footer.classList.toggle('onscreen', e.isIntersecting)).observe(footer);
 $$('[data-top]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }));
-const FOOTERS = ['banners', 'classic'];
-function setFooter(v) {
-  footer.dataset.footer = v;
-  $$('.foot-switch button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
-  try { localStorage.setItem('footer', v); } catch {}
-}
-let footerPick = new URLSearchParams(location.search).get('footer');
-if (!FOOTERS.includes(footerPick)) try { footerPick = localStorage.getItem('footer'); } catch {}
-setFooter(FOOTERS.includes(footerPick) ? footerPick : 'banners');
-$$('.foot-switch button').forEach(b => b.addEventListener('click', () => setFooter(b.dataset.v)));
+// a quiet toggle in the footer bar flips between the classic columns and the house banners
+const setFooter = v => { footer.dataset.footer = v; try { localStorage.setItem('footer-style', v); } catch {} };
+try { if (localStorage.getItem('footer-style') === 'banners') footer.dataset.footer = 'banners'; } catch {}
+$('.foot-toggle').addEventListener('click', () => setFooter(footer.dataset.footer === 'classic' ? 'banners' : 'classic'));
 
 /* ---------- Patronus: a silver doe is cast out of the wand, gallops off one edge, comes back the other way and runs out past the far edge ---------- */
 let patronusArmed = true, lastPatronus = -Infinity;
@@ -905,5 +915,5 @@ async function copyEmail() {
 }
 $('[data-copy]').addEventListener('click', copyEmail);
 
-buildWorld();
-onWalk();
+// after the first paint: the world art and walker read layout, so let the page show first
+requestAnimationFrame(() => setTimeout(() => { buildWorld(); onWalk(); }));

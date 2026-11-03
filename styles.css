@@ -1,5 +1,6 @@
 /* ===== Tokens ===== */
-@font-face { font-family: "Harry P"; src: url("assets/HarryP.ttf") format("truetype"); font-display: swap; }
+/* subset to the letters it draws ("Saksham Agrawal", "magical"): 27 KB -> 3.5 KB. Add letters with fontTools if it is used for new words. */
+@font-face { font-family: "Harry P"; src: url("assets/HarryP-subset.woff") format("woff"); font-display: swap; }
 :root {
   --midnight: #04141b;
   --ink: #082029;
@@ -106,7 +107,8 @@ main > section:not(.hero) { isolation: isolate; overflow-x: clip; background: va
 #records { --tint: linear-gradient(180deg, transparent, rgba(30,40,80,.2) 50%, transparent); }
 #trophy-room { --tint: radial-gradient(ellipse 70% 60% at 50% 40%, rgba(201,164,92,.07), transparent 70%); }
 #owl-post { --tint: radial-gradient(ellipse 60% 70% at 20% 50%, rgba(150,210,255,.06), transparent 70%); }
-main > section:not(.onscreen) .piece *, main > section:not(.onscreen) .piece { animation-play-state: paused !important; }
+/* nothing animates in a section that is off screen (rain, cues, card pieces, the owl's blink...) */
+main > section:not(.onscreen), main > section:not(.onscreen) *, main > section:not(.onscreen) *::before, main > section:not(.onscreen) *::after { animation-play-state: paused !important; }
 
 /* ===== Top bar ===== */
 .topbar {
@@ -656,14 +658,8 @@ html:not(.js) .env-seal, .envelope.open .env-seal { pointer-events: none; }
 .credits { max-width: 1080px; margin: 6px auto 0; font-size: .84rem; color: #8fa0a6; }
 .local-time { font: 500 1.02rem/1.4 var(--body); color: var(--text-soft); }
 
-/* the switcher shows only while the footer is in view */
-.foot-switch { position: fixed; right: 16px; bottom: 16px; z-index: 89; display: flex; align-items: center; gap: 4px; padding: 6px; border-radius: 999px;
-  background: rgba(4,20,27,.92); border: 1px solid rgba(201,164,92,.45); box-shadow: 0 10px 30px rgba(0,0,0,.5); font: .82rem/1 var(--mono);
-  opacity: 0; pointer-events: none; translate: 0 10px; transition: opacity .3s, translate .3s; }
-.foot.onscreen .foot-switch { opacity: 1; pointer-events: auto; translate: 0 0; }
-.foot-switch span { padding: 0 6px 0 8px; color: var(--stone); }
-.foot-switch button { min-height: 36px; padding: 0 12px; border-radius: 999px; border: 0; cursor: pointer; background: none; color: #e8e1cc; font: inherit; }
-.foot-switch button[aria-pressed="true"] { background: var(--gold); color: #1d1408; }
+.foot-toggle { width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; background: none; color: var(--stone); opacity: .35; font-size: .9rem; transition: opacity .2s, color .2s; }
+.foot-toggle:hover, .foot-toggle:focus-visible { opacity: 1; color: var(--gold-hi); }
 
 @media (max-width: 860px) { .v-banners { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 26px; } }
 @media (max-width: 760px) {
@@ -671,7 +667,6 @@ html:not(.js) .env-seal, .envelope.open .env-seal { pointer-events: none; }
   .v-classic { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
   .foot-brand { grid-column: 1 / -1; }
   .to-top { margin-left: 0; }
-  .foot-switch { left: 8px; right: 8px; justify-content: center; }
 }
 
 /* ===== Mobile hero ===== */
