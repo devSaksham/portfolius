@@ -881,7 +881,21 @@ else {
     b.innerHTML = `<b style="left:${-(c - half * 0.5) * 100}%;top:${-r * 100}%">SA</b>`;
     bricksEl.append(b);
   }
-  const openWall = on => frameEl.classList.toggle('open', on);
+  // the portrait moves, like the ones in the castle: the 141 KB loop loads only when the wall first opens,
+  // plays only while the wall is open and on screen, and is skipped entirely on Save-Data or very slow connections
+  const vid = $('.sitter-vid', frameEl), net = navigator.connection;
+  const canMove = !(net && (net.saveData || /(^|-)2g$/.test(net.effectiveType || '')));
+  let visible = false;
+  const syncPortrait = () => {
+    if (!canMove) return;
+    const live = visible && frameEl.classList.contains('open');
+    if (live) {
+      if (!vid.src) { vid.src = vid.dataset.src; vid.addEventListener('playing', () => vid.classList.add('playing'), { once: true }); }
+      vid.play().catch(() => {});
+    } else if (vid.src) vid.pause();
+  };
+  new IntersectionObserver(([e]) => { visible = e.isIntersecting; syncPortrait(); }).observe(frameEl);
+  const openWall = on => { frameEl.classList.toggle('open', on); syncPortrait(); };
   frameEl.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') openWall(true); });
   frameEl.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') openWall(false); });
   frameEl.addEventListener('click', () => openWall(!frameEl.classList.contains('open')));
