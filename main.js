@@ -96,7 +96,14 @@ $$('.rv').forEach(el => reduce ? el.classList.add('in') : revealObs.observe(el))
 
 /* ---------- Project cards: Daily Prophet affordances, stack as code ---------- */
 $$('.artefact').forEach(a => a.insertAdjacentHTML('beforeend', '<span class="np-peek" aria-hidden="true"></span>'));
-$$('[data-dossier]').forEach(b => b.addEventListener('click', () => $('#' + b.dataset.dossier).showModal()));
+const longDate = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+$$('[data-dossier]').forEach(b => b.addEventListener('click', () => {
+  $$('[data-npdate]').forEach(el => (el.textContent = longDate.format(new Date())));
+  modal($('#' + b.dataset.dossier));
+}));
+// a modal dialog sits in the top layer, above everything in <body>; move the wand and sparkles inside it while it's open
+function modal(d) { d.showModal(); if (fine) d.append(cv, $('.wand')); }
+$$('dialog').forEach(d => d.addEventListener('close', () => document.body.append(cv, $('.wand'))));
 $$('dialog.prophet').forEach(d => d.addEventListener('click', e => { if (e.target === d) d.close(); }));
 const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 $$('.artefact .tech').forEach(p => {
@@ -141,6 +148,35 @@ pad.addEventListener('click', launch);
 const worldClip = $('.world-clip'), world = $('.world'), lamp = $('.lamp'), lampWorld = $('.lamp-world');
 const hero = $('.hero'), heroLamp = $('.hero-lamp'), heroLampIn = $('.hero-lamp-in');
 const PAR = 0.92; // the world drifts slightly slower than the page
+const rider = document.createElement('div');
+rider.className = 'rider';
+rider.setAttribute('aria-hidden', 'true');
+rider.append($('#rider-tpl').content.cloneNode(true));
+worldClip.append(rider);
+let track = [], rx = null, ry = 0, rFace = 1, riding = false, rLast = 0;
+// target: the point on the line level with the middle of the screen
+function ride() {
+  if (reduce || track.length < 2 || riding) return;
+  riding = true; rLast = 0;
+  requestAnimationFrame(rideStep);
+}
+function rideStep(now) {
+  const dt = rLast ? Math.min(0.05, (now - rLast) / 1000) : 0.016;
+  rLast = now;
+  const want = PAR * scrollY + 0.55 * H;
+  let lo = 0, hi = track.length - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; track[m][1] < want ? (lo = m) : (hi = m); }
+  const [tx, ty] = track[hi];
+  if (rx === null) { rx = tx; ry = ty; rider.classList.add('on'); }
+  const k = 1 - Math.exp(-dt * 8), ox = rx, oy = ry;
+  rx += (tx - rx) * k; ry += (ty - ry) * k;
+  const mx = rx - ox, my = ry - oy;
+  if (Math.abs(mx) > 0.3) rFace += (Math.sign(mx) - rFace) * 0.12;
+  const tilt = Math.abs(mx) + Math.abs(my) > 0.2 ? clamp(Math.atan2(my, Math.abs(mx)) * 57.3, -38, 38) : 0;
+  rider.style.transform = `translate3d(${rx - 45}px, ${ry - 52 + (1 - PAR) * scrollY}px, 0) rotate(${tilt * Math.sign(rFace)}deg) scaleX(${rFace})`;
+  if (Math.hypot(tx - rx, ty - ry) > 0.5 || Math.abs(Math.abs(rFace) - 1) > 0.01) requestAnimationFrame(rideStep);
+  else riding = false;
+}
 const artFor = { 'what-i-do': 'what-i-do', 'room-of-requirement': 'room-of-requirement', 'sorting-hat': 'sorting-hat', journey: 'journey',
   spellbook: 'spellbook', records: 'records', 'trophy-room': 'trophies', 'owl-post': 'owl-post' };
 function buildWorld() {
@@ -166,6 +202,11 @@ function buildWorld() {
   html += `<svg class="corridor-line" viewBox="0 0 ${W} ${docH}" preserveAspectRatio="none" style="top:0;height:${docH}px"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="6 9"/>` +
     pts.map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="none" stroke="currentColor"/>`).join('') + '</svg>';
   world.innerHTML = lampWorld.innerHTML = html;
+  // sample the guide line so the broom rider can follow it (the path only ever runs downwards)
+  const line = $('.corridor-line path', world), len = line.getTotalLength();
+  track = [];
+  for (let l = 0; l <= len; l += 6) { const q = line.getPointAtLength(l); track.push([q.x, q.y]); }
+  ride();
   worldClip.style.height = world.style.height = lampWorld.style.height = docH + 'px';
   heroLampIn.style.width = hero.offsetWidth + 'px';
   heroLampIn.style.height = hero.offsetHeight + 'px';
@@ -332,8 +373,9 @@ $('[data-send-owl]').addEventListener('click', async e => {
   errand = true;
   const h = center(owl);
   owl.classList.add('away');
-  flyer.classList.add('on');
+  flyer.classList.add('on', 'errand');
   await leg([h, { x: h.x + W * 0.15, y: h.y - H * 0.3 }, { x: W * 0.8, y: H * 0.1 }, { x: W + 120, y: -80 }], h.w, 70, 1300, 1);
+  flyer.classList.remove('errand');
   location.href = href;
   await sleep(600);
   // come home: the chaser takes over from the left edge
@@ -392,6 +434,7 @@ addEventListener('scroll', () => {
     const y = scrollY;
     if (Math.abs(y - lastY) > 4) { root.dataset.dir = y > lastY ? 'down' : 'up'; lastY = y; }
     world.style.transform = `translate3d(0, ${((1 - PAR) * y).toFixed(1)}px, 0)`;
+    ride();
     topbar.classList.toggle('scrolled', y > 40);
     onWalk();
     if (px > -999) placeLamps();
@@ -409,25 +452,25 @@ const HOUSE = { gryffindor: 'GRYFFINDOR', ravenclaw: 'RAVENCLAW', hufflepuff: 'H
 const TINT = { gryffindor: ['#ff6b5e', '#ffd27f'], ravenclaw: ['#8fb4ff', '#dfe7ff'], hufflepuff: ['#ffd56b', '#fff1c4'], slytherin: ['#6fdc9a', '#dff4e8'], all: GOLD };
 const QUIZ = [
   ['Production breaks at 2 a.m. You…', [['Fix it live. Fear is just another bug.', 'gryffindor'], ['Read every log until it makes sense.', 'ravenclaw'],
-    ['Wake the team — we fix it together.', 'hufflepuff'], ['Roll back. I had a plan for exactly this.', 'slytherin']]],
+    ['Wake the team. We fix it together.', 'hufflepuff'], ['Roll back. I had a plan for exactly this.', 'slytherin']]],
   ['Pick a side project:', [['A compiler, obviously.', 'ravenclaw'], ['A game built with friends at 3 a.m.', 'gryffindor'],
     ['A tool my friends actually use every day.', 'hufflepuff'], ['A startup. Seed round by June.', 'slytherin']]],
   ['Tabs or spaces?', [['Spaces. Four. Fight me.', 'gryffindor'], ['Whatever the linter says.', 'hufflepuff'],
-    ['Depends on the language spec, actually…', 'ravenclaw'], ['Tabs — fewer bytes, faster ship.', 'slytherin']]],
+    ['Depends on the language spec, actually…', 'ravenclaw'], ['Tabs. Fewer bytes, faster ship.', 'slytherin']]],
 ];
 const VERDICT = {
-  gryffindor: 'You’d push to main on a Friday — and it would work.', ravenclaw: 'You read the RFC before the README.',
-  hufflepuff: 'Your code reviews are kind and your docs are complete.', slytherin: 'You benchmark everything — and win.',
+  gryffindor: 'You’d push to main on a Friday, and it would work.', ravenclaw: 'You read the RFC before the README.',
+  hufflepuff: 'Your code reviews are kind and your docs are complete.', slytherin: 'You benchmark everything, and win.',
 };
 const SAKSHAM = [
-  ['A real thirst to know how things work — recurrent KANs, built from scratch?', 'ravenclaw'],
+  ['A real thirst to know how things work. Recurrent KANs, built from scratch?', 'ravenclaw'],
   ['Plenty of nerve. Took a deepfake-call detector to a hackathon and came back fifth.', 'gryffindor'],
-  ['Not afraid of patient, unglamorous work — assisting rescue operations, onboarding 400+ event participants.', 'hufflepuff'],
-  ['Ambition, certainly. “If I can imagine it, I want to build it” — practically a motto.', 'slytherin'],
+  ['Not afraid of patient, unglamorous work: assisting rescue operations, onboarding 400+ event participants.', 'hufflepuff'],
+  ['Ambition, certainly. “If I can imagine it, I want to build it.” Practically a motto.', 'slytherin'],
   ['Curious by nature, builder by instinct. He’d do well in any house. Better hire him.', 'all'],
 ];
 const MUTTER = ['Hmm… curious…', 'Tricky… very tricky…', 'Plenty of talent, I see…', 'Now where to put you…', 'Not a bad mind, not bad at all…'];
-const POKE = ['Oi! Mind the brim.', 'I’ve been sorting for a thousand years, you know.', 'Press “Sort me” — if you dare.', 'Careful, I’m a vintage hat.'];
+const POKE = ['Oi! Mind the brim.', 'I’ve been sorting for a thousand years, you know.', 'Press “Sort me”, if you dare.', 'Careful, I’m a vintage hat.'];
 let hatBusy = false, typing = 0, sakshamTurn = 0, tally;
 async function speak(text) {
   const my = ++typing;
@@ -594,7 +637,7 @@ function drawLedger(src) {
   const chart = src === 'contest';
   $('.ledger-chart').hidden = !chart;
   $('.ledger-scroll').hidden = $('.ledger-legend').hidden = chart;
-  if (!activity?.[src]) { $('.ledger-sum').textContent = 'The ledger is closed today — try again later.'; return; }
+  if (!activity?.[src]) { $('.ledger-sum').textContent = 'The ledger is closed today. Try again later.'; return; }
   chart ? drawChart(activity.contest) : drawHeatmap(activity, src);
 }
 const fmtUpdated = d => new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
@@ -610,7 +653,7 @@ fetch('data/activity.json').then(r => r.json()).then(data => {
     $$('.ledger-src button').forEach(x => x.setAttribute('aria-pressed', x === b));
     drawLedger(b.dataset.src);
   }));
-}).catch(() => { $('.ledger-sum').textContent = 'The ledger is closed today — try again later.'; });
+}).catch(() => { $('.ledger-sum').textContent = 'The ledger is closed today. Try again later.'; });
 
 /* ---------- Live GitHub stats + last push (public API; falls back to the static text) ---------- */
 const ago = t => {
@@ -640,23 +683,28 @@ function tickClock() {
   const mood = hr >= 5 && hr < 11 ? 'the morning post has just arrived' : hr < 17 ? 'lessons are in session'
     : hr < 20 ? 'the candles are being lit' : 'the candles are lit and the owls are out';
   $('[data-sb="time"]').textContent = `IST ${hhmm}`;
-  $$('[data-localtime]').forEach(el => (el.textContent = `It’s ${nice} in Dehradun — ${mood}.`));
+  $$('[data-localtime]').forEach(el => (el.textContent = `It’s ${nice} in Dehradun, and ${mood}.`));
+  $$('[data-ist]').forEach(el => (el.textContent = `${longDate.format(now).toLowerCase()}, ${hhmm} ist`));
 }
 tickClock();
 setInterval(tickClock, 30000);
 
-/* ---------- Hero terminal line: types once ---------- */
-const term = $('.term'), cmd = $('.cmd', term), full = cmd.dataset.type;
-term.setAttribute('aria-label', `$ ${full} — shipped`);
-if (reduce) term.classList.add('done');
-else {
-  cmd.textContent = '';
-  setTimeout(async () => {
-    for (let i = 1; i <= full.length; i++) { cmd.textContent = full.slice(0, i); await sleep(34); }
-    await sleep(250);
-    term.classList.add('done');
-  }, intro ? 2300 : 700);
-}
+/* ---------- Section labels: a tiny command types itself, then prints one real fact ---------- */
+const skillCount = $('[data-skill-count]');
+if (skillCount) skillCount.textContent = $$('.chips li').length;
+const labelObs = new IntersectionObserver(entries => {
+  for (const e of entries) {
+    const k = e.target, cmd = $('.cmd', k), text = '$ ' + k.dataset.cmd;
+    if (!e.isIntersecting) { k.classList.remove('done'); k.run = 0; continue; } // re-arm for the next visit
+    if (k.run) continue;
+    const my = k.run = performance.now();
+    (async () => {
+      for (let i = 2; i <= text.length && k.run === my; i++) { cmd.textContent = text.slice(0, i); await sleep(40); }
+      if (k.run === my) k.classList.add('done');
+    })();
+  }
+}, { threshold: 1 });
+$$('.kicker[data-cmd]').forEach(k => reduce ? k.classList.add('done') : labelObs.observe(k));
 
 /* ---------- Command palette: / or Ctrl/⌘ K ---------- */
 const palette = $('#palette'), palInput = $('input', palette), palList = $('.pal-list', palette);
@@ -694,7 +742,7 @@ function renderPalette() {
   }));
 }
 function runCommand(i) { const c = palItems[i]; if (!c) return; palette.close(); c[2](); }
-function openPalette() { palInput.value = ''; palSel = 0; renderPalette(); palette.showModal(); palInput.focus(); }
+function openPalette() { palInput.value = ''; palSel = 0; renderPalette(); modal(palette); palInput.focus(); }
 palInput.addEventListener('input', () => { palSel = 0; renderPalette(); });
 palInput.addEventListener('keydown', e => {
   if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); palSel = (palSel + (e.key === 'ArrowDown' ? 1 : -1) + palItems.length) % palItems.length; renderPalette(); }
@@ -718,40 +766,87 @@ if (!night.hidden) {
   perchObs.observe(night);
 }
 
-/* ---------- Patronus: at the bottom, a silver owl bursts from the wand and sweeps across ---------- */
+/* ---------- Patronus: at the bottom, a silver dove bursts from the wand ---------- */
 let patronusArmed = true, lastPatronus = -Infinity;
 new IntersectionObserver(([e]) => {
   if (!e.isIntersecting) { patronusArmed = true; return; }
   if (patronusArmed && performance.now() - lastPatronus > 20000) { patronusArmed = false; lastPatronus = performance.now(); patronus(); }
 }, { threshold: 0.6 }).observe(footer);
+const doveTpl = $('#dove-tpl');
+const flash = Object.assign(document.createElement('div'), { className: 'cast-flash' });
+const beam = Object.assign(document.createElement('div'), { className: 'patronus-beam' });
+document.body.append(flash, beam);
+const bez = ([a, b, c, d], e) => { const u = 1 - e; return u * u * u * a + 3 * u * u * e * b + 3 * u * e * e * c + e * e * e * d; };
 function patronus() {
   if (reduce) return;
-  const src = root.classList.contains('wand-on') && px > 0 ? { x: px, y: py } : center($('.mini-castle, .ink-castle', footer));
+  const wandOn = root.classList.contains('wand-on') && px > 0;
+  const src = wandOn ? { x: px, y: py } : center($('.mini-castle, .ink-castle', footer));
   for (let i = 0; i < 46; i++) {
     const a = Math.random() * Math.PI * 2, s = 0.5 + Math.random() * 2.2;
     spawn(src.x, src.y, Math.cos(a) * s, Math.sin(a) * s - 1, 50 + Math.random() * 40, 0.8 + Math.random() * 1.8, SILVER);
   }
+  // the room brightens for a moment, like a real cast
+  flash.animate([{ opacity: 0 }, { opacity: 0.22, offset: 0.18 }, { opacity: 0 }], { duration: 1600, easing: 'ease-out' });
   const el = document.createElement('div');
   el.className = 'patronus';
-  el.append(tpl.content.cloneNode(true));
+  el.append(doveTpl.content.cloneNode(true));
   document.body.append(el);
-  const dir = src.x < W / 2 ? 1 : -1;
-  const p = [src, { x: src.x + dir * W * 0.28, y: src.y - 220 }, { x: W / 2 + dir * W * 0.22, y: H * 0.3 }, { x: dir > 0 ? W + 180 : -180, y: H * 0.18 }];
-  const t0 = performance.now(), DUR = 2600;
-  let puffed = false;
+  // three swooping legs: left, right, left
+  const stops = [src, { x: W * 0.14, y: H * 0.5 }, { x: W * 0.86, y: H * 0.36 }, { x: W * 0.22, y: H * 0.2 }];
+  const legs = stops.slice(1).map((b, i) => {
+    const a = stops[i], dx = b.x - a.x;
+    return { x: [a.x, a.x + dx * 0.3, b.x - dx * 0.3, b.x], y: [a.y, a.y - 110, b.y - 110, b.y] };
+  });
+  const LEG = 1400, DUR = LEG * legs.length, t0 = performance.now();
+  let face = -1, lx = src.x, ly = src.y, puffed = false;
   const step = now => {
-    const t = Math.min(1, (now - t0) / DUR), e = ease(t), u = 1 - e;
-    const x = u * u * u * p[0].x + 3 * u * u * e * p[1].x + 3 * u * e * e * p[2].x + e * e * e * p[3].x;
-    const y = u * u * u * p[0].y + 3 * u * u * e * p[1].y + 3 * u * e * e * p[2].y + e * e * e * p[3].y;
-    const sc = t < 0.25 ? 0.3 + 0.7 * (t / 0.25) : t > 0.82 ? 1 + (t - 0.82) : 1;
-    const op = t < 0.15 ? t / 0.15 : t > 0.82 ? Math.max(0, 1 - (t - 0.82) / 0.12) : 0.95;
+    const T = clamp((now - t0) / DUR, 0, 1), k = Math.min(legs.length - 1, Math.floor(T * legs.length));
+    const e = ease(Math.min(1, T * legs.length - k)), g = legs[k];
+    const x = bez(g.x, e), y = bez(g.y, e), vx = x - lx, vy = y - ly;
+    lx = x; ly = y;
+    if (Math.abs(vx) > 0.4) face += (Math.sign(vx) - face) * 0.14; // turns through edge-on, like a bird banking
+    const sc = T < 0.08 ? 0.3 + 0.7 * (T / 0.08) : T > 0.9 ? 1 + (T - 0.9) * 3 : 1;
+    const op = T < 0.06 ? T / 0.06 : T > 0.9 ? Math.max(0, 1 - (T - 0.9) / 0.08) : 0.95;
+    const bank = clamp(vy * 2.2, -18, 18) * Math.sign(face);
     el.style.opacity = op;
-    el.style.transform = `translate3d(${x - 70}px, ${y - 70}px, 0) scale(${sc * (dir > 0 ? 1 : -1)}, ${sc})`;
-    if (op > 0.05) for (let i = 0; i < 2; i++) spawn(x - dir * 30 + (Math.random() - 0.5) * 30, y + 20, -dir * Math.random(), 0.3 + Math.random() * 0.6, 50 + Math.random() * 30, 0.6 + Math.random() * 1.4, SILVER);
-    if (!puffed && t > 0.86) { puffed = true; burst(x, y, 40, SILVER); }
-    t < 1 ? requestAnimationFrame(step) : el.remove();
+    el.style.transform = `translate3d(${x - 75}px, ${y - 56}px, 0) rotate(${bank}deg) scale(${sc * face}, ${sc})`;
+    // a ray of light from the wand to the dove, fading over the first sweep
+    const bo = Math.max(0, 1 - T * legs.length);
+    if (bo > 0) {
+      const sx = wandOn ? px : src.x, sy = wandOn ? py : src.y, dist = Math.hypot(x - sx, y - sy);
+      beam.style.opacity = bo * 0.85;
+      beam.style.transform = `translate3d(${sx}px, ${sy - 6}px, 0) rotate(${Math.atan2(y - sy, x - sx)}rad) scaleX(${dist / 100})`;
+    } else beam.style.opacity = 0;
+    if (op > 0.05) for (let i = 0; i < 2; i++) spawn(x - face * 40 + (Math.random() - 0.5) * 24, y + 6 + (Math.random() - 0.5) * 16, -face * Math.random() * 0.8, 0.2 + Math.random() * 0.5, 50 + Math.random() * 30, 0.6 + Math.random() * 1.4, SILVER);
+    if (!puffed && T > 0.92) { puffed = true; burst(x, y, 50, SILVER); }
+    T < 1 ? requestAnimationFrame(step) : el.remove();
   };
   requestAnimationFrame(step);
+}
+
+/* ---------- Portrait: a brick wall that opens diagonally under the wand ---------- */
+const frameEl = $('.portrait .frame'), bricksEl = $('.bricks', frameEl);
+if (reduce) frameEl.classList.add('open');
+else {
+  const ROWS = 9, COLS = 4, MAXD = ROWS + COLS;
+  for (let r = 0; r < ROWS; r++) for (let c = 0; c <= COLS; c++) {
+    const half = r % 2;
+    if (!half && c === COLS) continue;
+    // distance from the top-left/bottom-right seam decides who moves first, and which way
+    const off = c / COLS - r / ROWS, side = off >= 0 ? 1 : -1, d = Math.round(Math.abs(off) * MAXD);
+    const b = document.createElement('i');
+    b.style.cssText = `left:${(c - half * 0.5) * 100 / COLS}%;top:${r * 100 / ROWS}%;--s:${side};--d:${d};--dr:${MAXD - d}`;
+    bricksEl.append(b);
+  }
+  const openWall = on => frameEl.classList.toggle('open', on);
+  frameEl.addEventListener('pointerenter', e => { if (e.pointerType === 'mouse') openWall(true); });
+  frameEl.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') openWall(false); });
+  frameEl.addEventListener('click', () => openWall(!frameEl.classList.contains('open')));
+  if (!fine) {
+    $('.brick-hint').textContent = 'Tap the wall';
+    const first = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setTimeout(() => openWall(true), 500); first.disconnect(); } }, { threshold: 0.7 });
+    first.observe(frameEl);
+  }
 }
 
 /* ---------- A note for whoever opens the console ---------- */
@@ -772,7 +867,7 @@ async function copyEmail() {
     const t = Object.assign(document.createElement('textarea'), { value: text });
     document.body.append(t); t.select(); document.execCommand('copy'); t.remove();
   }
-  copied.textContent = 'Copied — the owl knows the way.';
+  copied.textContent = 'Copied. The owl knows the way.';
   setTimeout(() => (copied.textContent = ''), 2600);
 }
 $('[data-copy]').addEventListener('click', copyEmail);
