@@ -736,68 +736,47 @@ addEventListener('keydown', e => {
   if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !typing && !palette.open)) { e.preventDefault(); openPalette(); }
 });
 
-/* ---------- Footer: the castle is the footer; four ways of putting the links on it ---------- */
-const footer = $('.foot'), stageCastle = $('.foot-castle');
-stageCastle.append($('.scene .castle').cloneNode(true));
+/* ---------- Footer: a small castle on the horizon, links on house banners (or the classic columns) ---------- */
+const footer = $('.foot'), footCastle = $('.foot-castle');
+footCastle.append($('.scene .castle').cloneNode(true));
 new IntersectionObserver(([e]) => footer.classList.toggle('onscreen', e.isIntersecting)).observe(footer);
-// "Lights": the windows wake one group at a time whenever the castle comes into view
-new IntersectionObserver(([e]) => footer.classList.toggle('awake', e.isIntersecting), { threshold: 0.35 }).observe(stageCastle);
 $$('[data-top]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }));
-const FOOTERS = { windows: fine ? 'Point your wand at a lit window' : 'Every lit window is a door', stars: 'Every star in the sky is a door', banners: 'Each house banner holds a few doors', lights: 'Wait for the castle to wake up' };
+const FOOTERS = ['banners', 'classic'];
 function setFooter(v) {
   footer.dataset.footer = v;
-  $('.foot-hint').textContent = FOOTERS[v];
   $$('.foot-switch button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === v));
   try { localStorage.setItem('footer', v); } catch {}
 }
 let footerPick = new URLSearchParams(location.search).get('footer');
-if (!FOOTERS[footerPick]) try { footerPick = localStorage.getItem('footer'); } catch {}
-setFooter(FOOTERS[footerPick] ? footerPick : 'windows');
+if (!FOOTERS.includes(footerPick)) try { footerPick = localStorage.getItem('footer'); } catch {}
+setFooter(FOOTERS.includes(footerPick) ? footerPick : 'banners');
 $$('.foot-switch button').forEach(b => b.addEventListener('click', () => setFooter(b.dataset.v)));
-// banners open on tap too
-$$('.pennant .flag').forEach(f => f.addEventListener('click', () => {
-  const open = f.parentElement.classList.toggle('open');
-  f.setAttribute('aria-expanded', open);
-}));
 
-/* ---------- Patronus: a silver doe leaps from the wand, gallops on air over the castle, lands at the gate, looks at you, dissolves ---------- */
+/* ---------- Patronus: a silver doe is cast out of the wand, gallops off one edge, comes back the other way and runs out past the far edge ---------- */
 let patronusArmed = true, lastPatronus = -Infinity;
 new IntersectionObserver(([e]) => {
   if (!e.isIntersecting) { patronusArmed = true; return; }
   if (patronusArmed && performance.now() - lastPatronus > 20000) { patronusArmed = false; lastPatronus = performance.now(); patronus(); }
-}, { threshold: 0.35 }).observe(stageCastle);
+}, { threshold: 0.35 }).observe(footCastle);
 const doeTpl = $('#doe-tpl');
 const flash = Object.assign(document.createElement('div'), { className: 'cast-flash' });
-const beam = Object.assign(document.createElement('div'), { className: 'patronus-beam' });
-document.body.append(flash, beam);
-const lightPool = Object.assign(document.createElement('div'), { className: 'patronus-pool' });
-document.body.append(lightPool);
+document.body.append(flash);
 // hip/shoulder, segment lengths and stroke widths (thick at the top, slender down to the hoof)
 const LEGS = {
   fn: { hip: [150, 98], len: [34, 30, 9], w: [12, 6, 5] }, ff: { hip: [142, 98], len: [34, 30, 9], w: [12, 6, 5] },
   rn: { hip: [72, 84], len: [30, 27, 28, 9], w: [20, 11, 6, 5], rear: true }, rf: { hip: [80, 84], len: [30, 27, 28, 9], w: [20, 11, 6, 5], rear: true },
 };
-// gait phase offsets per leg: a 4-beat walk and a gallop (fronts and rears paired, slightly split); blended by speed
-const WALK = { rn: 0, fn: 0.25, rf: 0.5, ff: 0.75 }, GALLOP = { rn: 0, rf: 0.12, fn: 0.5, ff: 0.62 };
+// gallop phase offsets per leg: hinds then fores, each pair slightly split
+const GALLOP = { rn: 0, rf: 0.12, fn: 0.5, ff: 0.62 };
 const smooth = t => t * t * (3 - 2 * t);
 const lerp = (a, b, t) => a + (b - a) * t;
-const easeIO = t => t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
-// Catmull-Rom through the points, u in [0, n-1]
-function spline(P, u) {
-  const i = clamp(Math.floor(u), 0, P.length - 2), t = u - i;
-  const p0 = P[Math.max(0, i - 1)], p1 = P[i], p2 = P[i + 1], p3 = P[Math.min(P.length - 1, i + 2)];
-  const f = (a, b, c, d) => 0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t * t + (-a + 3 * b - 3 * c + d) * t * t * t);
-  return { x: f(p0.x, p1.x, p2.x, p3.x), y: f(p0.y, p1.y, p2.y, p3.y) };
-}
 function patronus() {
   if (reduce) return;
   const wandOn = root.classList.contains('wand-on') && px > 0;
-  const cr = stageCastle.getBoundingClientRect();
-  const gate = { x: cr.left + cr.width * 545 / 1280, y: Math.min(H - 30, cr.top + cr.height * 690 / 853) };
-  const src = wandOn ? { x: px, y: py } : { x: gate.x, y: gate.y - 60 };
-  // the room brightens for a moment, like a real cast
-  flash.animate([{ opacity: 0 }, { opacity: 0.22, offset: 0.18 }, { opacity: 0 }], { duration: 1800, easing: 'ease-out' });
-  burst(src.x, src.y, 40, SILVER);
+  const src = wandOn ? { x: px, y: py } : center($('.foot-title', footer));
+  // the room brightens for a moment, like a real cast, and silver mist bursts from the tip
+  flash.animate([{ opacity: 0 }, { opacity: 0.2, offset: 0.18 }, { opacity: 0 }], { duration: 1800, easing: 'ease-out' });
+  burst(src.x, src.y, 50, SILVER);
   const el = document.createElement('div');
   el.className = 'patronus';
   el.append(doeTpl.content.cloneNode(true));
@@ -813,7 +792,7 @@ function patronus() {
     });
   }
   const heads = $$('.head, .head-lines', el);
-  // s swings the whole leg (positive = back), b bends the joint; angles in degrees, 0 = straight down
+  // s swings the whole leg (positive = back), b bends the joint; angles in degrees, 0 = straight down. Returns the hoof.
   const pose = (k, s, b) => {
     const L = LEGS[k], rad = Math.PI / 180;
     const abs = L.rear ? [-20 + s, 30 + s + b * 0.5, s - b * 0.9, s - b * 0.9 - 25] : [s, s + b, s + b - 25 - b * 0.3];
@@ -821,75 +800,57 @@ function patronus() {
     const pts = [[x, y]];
     abs.forEach((a, i) => { x -= Math.sin(a * rad) * L.len[i]; y += Math.cos(a * rad) * L.len[i]; pts.push([x, y]); });
     rig[k].forEach((p, i) => p.setAttribute('d', `M${pts[i][0].toFixed(1)} ${pts[i][1].toFixed(1)}L${pts[i + 1][0].toFixed(1)} ${pts[i + 1][1].toFixed(1)}`));
+    return pts[pts.length - 1];
   };
-  // the route: out of the wand, up over the towers edge to edge, a turn, and down to the gate
-  const dir = src.x < W / 2 ? 1 : -1, sky = clamp(cr.top + cr.height * 0.06, 90, H * 0.4);
-  const E = (f) => dir > 0 ? W * f : W * (1 - f);
-  const P = [src, { x: E(0.1), y: sky + 30 }, { x: E(0.5), y: sky - 20 }, { x: E(0.93), y: sky + 10 }, { x: E(0.75), y: (sky + gate.y) / 2 }, { x: gate.x, y: gate.y }];
-  const T1 = 900, T2 = T1 + 3200, T3 = T2 + 1300, T4 = T3 + 1100, END = T4 + 1300;
-  const winPaths = $$('.win', stageCastle), winX = [[105, 212], [220, 430], [427, 637], [647, 856], [854, 1059], [1071, 1130]];
-  let face = dir, lx = src.x, ly = src.y, phase = 0, lastNow = performance.now(), flared = -1;
+  // she never turns on screen: the turn happens out of sight, past the first edge
+  const first = src.x < W / 2 ? -1 : 1; // run to the nearer edge first
+  const cr = footCastle.getBoundingClientRect(), lane = clamp(cr.top + cr.height * 0.55, 230, H * 0.78); // in front of the castle, below the headline
+  const off = 170;
+  const leg1 = { from: src.x, to: first > 0 ? W + off : -off, y0: src.y, y1: lane };
+  const leg2 = { from: first > 0 ? W + off : -off, to: first > 0 ? -off : W + off, y0: lane - 10, y1: lane - 40 };
+  const SPEED = 0.55; // px per ms at full gallop
+  const D1 = 700 + Math.abs(leg1.to - leg1.from) / SPEED, PAUSE = 450, D2 = Math.abs(leg2.to - leg2.from) / SPEED, END = D1 + PAUSE + D2;
+  let phase = 0, lastNow = performance.now(), ly = src.y;
   const t0 = lastNow;
   const step = now => {
     const t = clamp(now - t0, 0, END), dt = Math.min(50, now - lastNow);
     lastNow = now;
-    let u, speed, op = 0.95, sc = 1, headA = 0, landed = false;
-    if (t < T1) { const p = t / T1; u = smooth(p); speed = 1; sc = 0.45 + 0.55 * smooth(p); op = Math.min(0.95, p * 2.4); }
-    else if (t < T2) { u = 1 + 2 * easeIO((t - T1) / (T2 - T1)); speed = 1; }
-    else if (t < T3) { const p = (t - T2) / (T3 - T2); u = 3 + 2 * (1 - (1 - p) ** 2); speed = lerp(1, 0.15, smooth(p)); }
-    else { u = 5; speed = 0; landed = true; }
-    const { x, y } = spline(P, Math.min(u, P.length - 1));
-    const dx = x - lx, dy = y - ly;
-    lx = x; ly = y;
-    if (Math.abs(dx) > 0.4) face += (Math.sign(dx) - face) * 0.12; // turns through edge-on, like a bird banking
-    // gait: walk to gallop blended by speed; a gallop has a bigger, quicker stride and a body bob
-    phase += dt / lerp(950, 520, speed);
-    let bob = 0;
-    if (!landed) {
-      for (const k in WALK) {
-        const off = lerp(WALK[k], GALLOP[k], speed), a = (phase + off) * Math.PI * 2;
-        pose(k, -lerp(18, 46, speed) * Math.sin(a), lerp(34, 70, speed) * Math.max(0, Math.cos(a)));
-      }
-      bob = Math.abs(Math.sin(phase * Math.PI * 2)) * lerp(2, 9, speed);
-      headA = -3 + Math.sin(phase * Math.PI * 4) * lerp(1.5, 3, speed);
-    } else if (t < T4) { // stops at the gate, lifts a foreleg and looks at you
-      const p = (t - T3) / (T4 - T3), s = Math.sin(Math.min(1, p * 1.6) * Math.PI / 2);
-      pose('fn', -22 * s, 88 * s); pose('ff', 0, 0); pose('rn', 0, 0); pose('rf', 0, 0);
-      headA = -9 * s;
-    } else { // lowers her head and dissolves from the tail forward
-      const p = (t - T4) / (END - T4);
-      headA = lerp(-9, 8, smooth(Math.min(1, p * 2)));
-      const m = `linear-gradient(to right, transparent ${(p * 130 - 15).toFixed(1)}%, #000 ${(p * 130 + 10).toFixed(1)}%)`;
-      el.style.maskImage = el.style.webkitMaskImage = m;
-      for (let i = 0; i < 3; i++) spawn(x - face * lerp(90, -90, p) + (Math.random() - 0.5) * 20, y - 60 - Math.random() * 60, (Math.random() - 0.5) * 0.4, -0.4 - Math.random() * 0.8, 70 + Math.random() * 40, 0.7 + Math.random() * 1.3, SILVER);
+    let x, y, face, sc = 1, op = 0.95;
+    if (t < D1) { // cast out: she forms out of the mist already moving, and gathers speed
+      const p = t / D1, e = p * p * (1.6 - 0.6 * p); // starts gently, then runs
+      x = lerp(leg1.from, leg1.to, e); y = lerp(leg1.y0, leg1.y1, smooth(Math.min(1, p * 2.2)));
+      face = first; sc = 0.4 + 0.6 * smooth(Math.min(1, p * 3)); op = Math.min(0.95, p * 4);
+    } else if (t < D1 + PAUSE) { x = leg1.to; y = lane; face = first; op = 0; }
+    else { // back across the whole screen and out past the far edge, a little further away and higher
+      const p = (t - D1 - PAUSE) / D2;
+      x = lerp(leg2.from, leg2.to, p); y = lerp(leg2.y0, leg2.y1, p) + Math.sin(p * Math.PI * 2) * 16;
+      face = -first; sc = 0.86;
     }
-    const pitch = landed ? 0 : clamp(Math.atan2(dy, Math.abs(dx) + 0.01) * 57.3, -18, 18);
-    heads.forEach(g => g.setAttribute('transform', `rotate(${headA} 146 76)`));
+    const vy = y - ly;
+    ly = y;
+    // a continuous gallop: hind legs then forelegs, with a body bob and a gentle head nod
+    phase += dt / 520;
+    const hooves = [];
+    for (const k in GALLOP) {
+      const a = (phase + GALLOP[k]) * Math.PI * 2;
+      hooves.push(pose(k, -46 * Math.sin(a), 70 * Math.max(0, Math.cos(a))));
+    }
+    const bob = Math.abs(Math.sin(phase * Math.PI * 2)) * 8;
+    const pitch = clamp(vy * 2.5, -10, 10) + Math.sin(phase * Math.PI * 2) * 2.5;
+    heads.forEach(g => g.setAttribute('transform', `rotate(${-3 + Math.sin(phase * Math.PI * 4) * 3} 146 76)`));
     el.style.opacity = op;
-    el.style.transform = `translate3d(${x - 110}px, ${y - 167 - bob}px, 0) rotate(${pitch * Math.sign(face)}deg) scale(${sc * face}, ${sc})`;
-    // a ray of light from the wand while she forms
-    if (t < T1) {
-      const sx = wandOn ? px : src.x, sy = wandOn ? py : src.y, dist = Math.hypot(x - sx, y - 80 - sy);
-      beam.style.opacity = (1 - t / T1) * 0.85;
-      beam.style.transform = `translate3d(${sx}px, ${sy - 6}px, 0) rotate(${Math.atan2(y - 80 - sy, x - sx)}rad) scaleX(${dist / 100})`;
-    } else beam.style.opacity = 0;
-    // the windows she passes over flare
-    const vx = (x - cr.left) / cr.width * 1280, gi = t > T1 && t < T2 ? winX.findIndex(([a, b]) => vx >= a && vx <= b) : -1;
-    if (gi !== flared) { winPaths[flared]?.classList.remove('flare'); winPaths[gi]?.classList.add('flare'); flared = gi; }
-    // light pooled on the ground once she's down
-    lightPool.style.opacity = op * clamp(1 - (gate.y - y) / 120, 0, 1) * (t > T4 ? 1 - (t - T4) / (END - T4) : 1) * 0.9;
-    lightPool.style.transform = `translate3d(${x - 120}px, ${gate.y - 18}px, 0)`;
-    // wisps swirl around her and stream behind while she runs
-    if (t < T4) {
-      const a = now / 260 + Math.random();
-      spawn(x + Math.cos(a) * 70, y - 80 + Math.sin(a) * 36, -Math.sin(a) * 0.7 - Math.sign(face) * 0.3, Math.cos(a) * 0.4 - 0.15, 45 + Math.random() * 30, 0.6 + Math.random() * 1.2, SILVER);
-      if (speed > 0.5) spawn(x - Math.sign(face) * 85 + (Math.random() - 0.5) * 30, y - 60 + (Math.random() - 0.5) * 40, -Math.sign(face) * Math.random() * 0.8, 0.1 + Math.random() * 0.3, 60 + Math.random() * 30, 0.6 + Math.random() * 1.4, SILVER);
+    el.style.transform = `translate3d(${x - 110}px, ${y - 167 - bob}px, 0) rotate(${pitch * face}deg) scale(${sc * face}, ${sc})`;
+    // light lifts off her hooves and trails behind; mist swirls round her
+    if (op > 0.05) {
+      for (const [hx, hy] of hooves) if (Math.random() < 0.25) {
+        const sx = x + face * sc * (hx * 220 / 240 - 110), sy = y - 167 - bob + 91.5 + sc * ((hy + 10) * 183 / 200 - 91.5);
+        spawn(sx, sy, -face * Math.random() * 0.6, 0.2 + Math.random() * 0.4, 45 + Math.random() * 25, 0.6 + Math.random(), SILVER);
+      }
+      spawn(x - face * 90 * sc + (Math.random() - 0.5) * 30, y - 70 + (Math.random() - 0.5) * 40, -face * (0.3 + Math.random() * 0.6), (Math.random() - 0.5) * 0.3, 60 + Math.random() * 30, 0.6 + Math.random() * 1.4, SILVER);
+      const a = now / 300 + Math.random() * 6;
+      spawn(x + Math.cos(a) * 80 * sc, y - 80 + Math.sin(a) * 40 * sc, -Math.sin(a) * 0.5, Math.cos(a) * 0.3, 40 + Math.random() * 20, 0.5 + Math.random(), SILVER);
     }
-    if (t >= END) {
-      winPaths[flared]?.classList.remove('flare');
-      el.remove(); lightPool.style.opacity = 0; beam.style.opacity = 0;
-      return;
-    }
+    if (t >= END) { el.remove(); return; }
     requestAnimationFrame(step);
   };
   requestAnimationFrame(step);
