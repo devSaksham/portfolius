@@ -733,3 +733,67 @@ html.intro .topbar, html.intro .walker { animation: copy-in .8s ease-out 1.4s bo
   .rain { display: none; }
   .js .rv { opacity: 1; transform: none; }
   }
+
+/* ===== Spell Class (spell-class.html) and its teaser in the Spellbook ===== */
+.sc-teaser { display: block; max-width: 1180px; margin: 22px auto 0; padding: 22px 26px; border-radius: 6px; text-decoration: none; color: var(--text);
+  background: linear-gradient(100deg, rgba(107,29,42,.55), rgba(8,30,39,.9) 60%); border: 1px solid rgba(201,164,92,.45); transition: border-color .3s, transform .3s; }
+.sc-teaser:hover, .sc-teaser:focus-visible { border-color: var(--gold-hi); transform: translateY(-2px); }
+.sc-teaser-k { display: block; font: .84rem/1 var(--mono); color: var(--gold); margin-bottom: 8px; }
+.sc-teaser-h { display: block; font: 600 1.4rem/1.2 var(--display); color: #f6eedb; margin-bottom: 6px; }
+.sc-teaser-p { display: block; color: var(--text-soft); }
+.sc-teaser-p b { color: var(--gold-hi); font-weight: 600; white-space: nowrap; }
+
+.sc-page { --hc: var(--gold); background: radial-gradient(ellipse at 50% -10%, #0d3a48, var(--midnight) 60%) fixed; min-height: 100vh; }
+.sc-page[data-house="gryffindor"] { --hc: var(--gryffindor); } .sc-page[data-house="ravenclaw"] { --hc: var(--ravenclaw); }
+.sc-page[data-house="hufflepuff"] { --hc: var(--hufflepuff); } .sc-page[data-house="slytherin"] { --hc: var(--slytherin); }
+.sc-back { margin-left: auto; color: var(--gold-hi); text-decoration: none; font: .9rem/1 var(--mono); }
+.sc { max-width: 880px; margin: 0 auto; padding: 110px var(--gutter) 80px; }
+.sc-head h1 { font: 600 clamp(2.4rem, 6vw, 3.8rem)/1.05 var(--display); color: #f4efe2; margin-bottom: .6rem; }
+.sc-house { margin: 32px 0 26px; }
+.sc-house-q { margin: 0 0 10px; font: .9rem/1.4 var(--mono); color: #8fc3d2; }
+.sc-houses { display: flex; flex-wrap: wrap; gap: 10px; }
+.sc-houses button { min-height: 44px; padding: 8px 18px; border-radius: 999px; cursor: pointer; font: 600 .95rem/1 var(--display); letter-spacing: .06em;
+  color: #eef0ec; background: rgba(255,255,255,.04); border: 1px solid rgba(195,205,208,.35); transition: background-color .25s, border-color .25s; }
+.sc-houses [data-house="gryffindor"] { --c: var(--gryffindor); } .sc-houses [data-house="ravenclaw"] { --c: var(--ravenclaw); }
+.sc-houses [data-house="hufflepuff"] { --c: var(--hufflepuff); } .sc-houses [data-house="slytherin"] { --c: var(--slytherin); }
+.sc-houses button::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 8px; border-radius: 50%; background: var(--c); }
+.sc-houses button[aria-checked="true"] { border-color: var(--c); background: color-mix(in srgb, var(--c) 22%, transparent); }
+.sc-points { margin: 12px 0 0; color: var(--text-soft); }
+.sc-years { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.sc-years button { flex: 1 1 200px; min-height: 48px; padding: 10px 14px; border-radius: 6px; cursor: pointer; text-align: left; font: 500 1rem/1.3 var(--body);
+  color: var(--text-soft); background: rgba(8,30,39,.8); border: 1px solid rgba(201,164,92,.22); }
+.sc-years b { font: 600 .9rem/1 var(--display); color: var(--gold-hi); letter-spacing: .06em; margin-right: 4px; }
+.sc-years small { float: right; font: .8rem/1.6 var(--mono); color: var(--stone); }
+.sc-years [aria-selected="true"] { border-color: var(--hc); color: #f4efe2; box-shadow: inset 0 -3px 0 var(--hc); }
+.sc-lesson { padding: clamp(22px, 4vw, 36px); border-radius: 6px; color: var(--quill); background: var(--parchment);
+  box-shadow: 0 30px 60px -30px rgba(0,0,0,.9), inset 0 0 60px rgba(150,110,50,.22), 0 0 0 1px rgba(201,164,92,.5); }
+.sc-count { margin: 0 0 10px; font: .86rem/1 var(--mono); color: var(--burgundy); }
+.sc-task { font: 500 clamp(1.3rem, 2.6vw, 1.6rem)/1.4 var(--body); margin: 0 0 20px; }
+.sc-term { display: flex; align-items: center; gap: 10px; padding: 8px 8px 8px 16px; border-radius: 6px; background: #0b1d24; box-shadow: inset 0 0 0 1px rgba(201,164,92,.35); }
+.sc-prompt { font: 1.05rem/1 var(--mono); color: var(--gold); }
+.sc-term input { flex: 1; min-width: 0; min-height: 40px; border: 0; outline: none; background: none; font: 1.05rem/1.4 var(--mono); color: #e8f4f6; }
+.sc-term input::placeholder { color: #6f8c95; }
+.sc-term:focus-within { box-shadow: inset 0 0 0 1px var(--gold-hi), 0 0 0 3px rgba(236,211,154,.25); }
+.sc-choices { display: grid; gap: 10px; }
+.sc-choices button { min-height: 48px; padding: 10px 16px; border-radius: 6px; cursor: pointer; text-align: left; background: #0b1d24; border: 1px solid rgba(201,164,92,.3); }
+.sc-choices code { font: 1rem/1.4 var(--mono); color: #e8f4f6; }
+.sc-choices .right { border-color: #6fdc8c; box-shadow: 0 0 0 2px rgba(111,220,140,.35); }
+.sc-choices .wrong { border-color: #d0574a; opacity: .6; }
+.sc-result { min-height: 1.6em; margin: 18px 0 0; font-size: 1.1rem; }
+.sc-result code { font: .95rem/1.4 var(--mono); padding: 2px 6px; border-radius: 3px; background: rgba(43,29,18,.1); }
+.sc-result.cast { padding: 16px 18px; border-radius: 6px; background: rgba(255,255,255,.4); border-left: 4px solid var(--hc); animation: sc-cast .6s ease-out; }
+.sc-result.cast p { margin: 0 0 .4em; } .sc-result.cast p:last-child { margin: 0; }
+.sc-spell { font: 600 clamp(1.6rem, 3.4vw, 2.1rem)/1.1 var(--display); color: var(--burgundy); text-shadow: 0 0 18px rgba(236,211,154,.8); }
+.sc-plus { font: .9rem/1 var(--mono); color: var(--quill-soft); }
+.sc-result.fizzle { color: #7a3a22; }
+.sc-result.curse { padding: 14px 16px; border-radius: 6px; background: rgba(46,125,50,.15); color: #1d4a22; }
+@keyframes sc-cast { from { opacity: 0; transform: translateY(6px); box-shadow: 0 0 0 0 rgba(236,211,154,.9); } to { opacity: 1; transform: none; box-shadow: 0 0 0 14px rgba(236,211,154,0); } }
+.sc-tools { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px; }
+.sc-tools .btn-ghost { color: var(--quill); background: rgba(43,29,18,.06); border-color: rgba(43,29,18,.35); min-height: 44px; }
+.sc-tools [data-act="next"] { margin-left: auto; }
+.sc-progress { display: flex; gap: 8px; justify-content: center; margin: 22px 0 10px; }
+.sc-progress button { width: 14px; height: 14px; padding: 0; border-radius: 50%; cursor: pointer; border: 1px solid var(--gold); background: transparent; }
+.sc-progress .done button { background: var(--gold); }
+.sc-progress .now button { box-shadow: 0 0 0 3px rgba(236,211,154,.35); }
+.sc-note { text-align: center; font: .84rem/1.4 var(--mono); color: var(--stone); }
+@media (max-width: 560px) { .sc-tools [data-act="next"] { margin-left: 0; } .sc-term .btn { padding: 10px 14px; } }

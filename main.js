@@ -499,6 +499,7 @@ async function finish() {
   const tops = Object.keys(tally).filter(h => tally[h] === best);
   const house = tops[(Math.random() * tops.length) | 0];
   sortInto(house, VERDICT[house]);
+  try { localStorage.setItem('house', JSON.stringify(house)); } catch {} // Spell Class picks this up
   $('[data-hat="me"]').textContent = 'Sort me again';
   $('.hat-actions').hidden = false;
   hatBusy = false;
@@ -697,6 +698,7 @@ const COMMANDS = [
   ['Go to Certificates', 'cd trophy-room', go('trophy-room')],
   ['Go to Contact', 'cd owl-post', go('owl-post')],
   ['Back to the Great Hall', 'cd ~', go('great-hall')],
+  ['Spell Class', 'learn commands as spells', () => (location.href = 'spell-class.html')],
   ['Accio resume', 'resume on request', go('owl-post')],
   ['Copy email', 'reach.saksham.agrawal@gmail.com', () => copyEmail()],
   ['Sort me', 'sorting hat quiz', () => { go('sorting-hat')(); setTimeout(() => $('[data-hat="me"]').click(), 600); }],
