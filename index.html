@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=UnifrakturMaguntia&display=swap">
+<link rel="preload" href="assets/HarryP.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="stylesheet" href="styles.css">
 <script>document.documentElement.classList.add('js')</script>
 </head>
@@ -59,16 +60,17 @@
     <g class="carry"><path d="M60 114v7" stroke="#8a6a3a" stroke-width="1.2"/><rect x="43" y="120" width="34" height="22" rx="1.5" fill="#efe1bd" stroke="#8a6a3a" stroke-width=".8"/><path d="M43 120l17 12 17-12" fill="none" stroke="#8a6a3a" stroke-width=".9"/><path d="M47 136h8M47 139h12" stroke="#4c6b3c" stroke-width=".8"/><circle cx="60" cy="131" r="4" fill="#8e1f2c"/><path d="M58.4 131h3.2" stroke="#d98a8a" stroke-width=".7"/></g>
   </svg>
 </template>
-<!-- Patronus: a silver dove with articulated wings (main.js clones it on cast) -->
-<template id="dove-tpl">
-  <svg class="dove" viewBox="0 0 160 120" aria-hidden="true">
-    <g class="wing far"><g class="arm"><path d="M84 56C76 36 68 22 56 10C72 14 86 28 94 52Z"/><g class="fore"><path d="M56 10C46 2 32-2 16 0C30 6 44 12 56 18Z"/></g></g></g>
-    <path class="tail" d="M54 70L14 58L19 67L9 75L20 79L15 90L58 80Z"/>
-    <path class="body" d="M50 72C58 56 78 50 100 52C110 44 124 41 131 48C128 53 124 56 120 58C118 72 104 86 82 88C66 90 54 84 50 72Z"/>
-    <path class="beak" d="M130 46L143 50L130 53Z"/>
-    <circle class="eye" cx="123" cy="48" r="1.8"/>
-    <path class="legs" d="M86 87l-3 8M93 87l-1 8"/>
-    <g class="wing near"><g class="arm"><path d="M78 58C70 36 62 22 50 10C66 14 82 28 92 54Z"/><g class="fore"><path d="M50 10C40 2 26-2 10 0C24 6 38 12 50 18Z"/><path d="M52 17C42 13 30 13 16 17C28 19 40 23 54 25Z"/></g></g></g>
+<!-- Patronus: a silver doe with galloping legs (main.js clones it on cast) -->
+<template id="doe-tpl">
+  <svg class="doe" viewBox="0 -8 200 168" aria-hidden="true">
+    <g class="far"><g transform="translate(64 86)"><g class="leg rear"><path d="M-5 0L-4 32L4 32L6 0Z"/><g class="shin"><path d="M-4 31L-2.5 60L2.5 60L4 31Z"/><path d="M-3.5 59h7.5l1 4.5h-10z"/></g></g></g><g transform="translate(112 86)"><g class="leg front"><path d="M-5 0L-4 32L4 32L6 0Z"/><g class="shin"><path d="M-4 31L-2.5 60L2.5 60L4 31Z"/><path d="M-3.5 59h7.5l1 4.5h-10z"/></g></g></g></g>
+    <path class="tail" d="M42 64C33 60 30 53 32 48C38 52 43 57 46 62Z"/>
+    <path d="M38 76C36 60 56 53 80 55C100 56 114 53 124 50C136 62 136 84 122 92L58 94C46 94 39 88 38 76Z"/>
+    <path d="M116 60C124 46 132 34 140 22L156 28C150 42 142 58 134 72Z"/>
+    <path d="M138 20C144 11 157 9 163 15L180 30C184 35 180 40 173 39L157 36C150 35 144 31 138 20Z"/>
+    <path d="M147 14C142 4 143-3 148-6C151 1 153 8 152 14ZM156 12C155 2 159-3 164-4C165 3 163 10 159 14Z"/>
+    <circle class="eye" cx="163" cy="22" r="1.9"/>
+    <g class="near"><g transform="translate(54 86)"><g class="leg rear"><path d="M-5 0L-4 32L4 32L6 0Z"/><g class="shin"><path d="M-4 31L-2.5 60L2.5 60L4 31Z"/><path d="M-3.5 59h7.5l1 4.5h-10z"/></g></g></g><g transform="translate(120 86)"><g class="leg front"><path d="M-5 0L-4 32L4 32L6 0Z"/><g class="shin"><path d="M-4 31L-2.5 60L2.5 60L4 31Z"/><path d="M-3.5 59h7.5l1 4.5h-10z"/></g></g></g></g>
   </svg>
 </template>
 <!-- Broom rider for the dotted guide line -->
@@ -614,7 +616,6 @@
 <footer class="foot foot-night" id="end">
   <div class="mini-castle">
     <svg viewBox="0 0 1280 853" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><use href="#keep"/></svg>
-    <span class="foot-spot" aria-hidden="true"></span>
   </div>
   <nav class="stars-nav" aria-label="Footer"><a href="#room-of-requirement">Projects</a><a href="#journey">Experience</a><a href="#spellbook">Skills</a><a href="#records">About</a><a href="#trophy-room">Certificates</a><a href="#owl-post">Contact</a></nav>
   <p class="foot-social"><a href="https://github.com/devSaksham" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/sakshamhere/" target="_blank" rel="noopener">LinkedIn</a><a href="https://leetcode.com/u/Sakshamm_codes/" target="_blank" rel="noopener">LeetCode</a><a href="mailto:reach.saksham.agrawal@gmail.com">Email</a></p>

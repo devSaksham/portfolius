@@ -93,6 +93,11 @@ const revealObs = new IntersectionObserver(entries => {
   }
 });
 $$('.rv').forEach(el => reduce ? el.classList.add('in') : revealObs.observe(el));
+const about = $('.about.scroll'), envelope = $('.envelope');
+new ResizeObserver(() => about.style.setProperty('--scroll-h', $('.scroll-body', about).offsetHeight + 'px')).observe(about);
+// only once it's in the upper part of the screen does the seal break
+const envObs = new IntersectionObserver(([e]) => envelope.classList.toggle('open', e.isIntersecting), { rootMargin: '0px 0px -62% 0px' });
+reduce ? envelope.classList.add('open') : envObs.observe(envelope);
 
 /* ---------- Project cards: Daily Prophet affordances, stack as code ---------- */
 $$('.artefact').forEach(a => a.insertAdjacentHTML('beforeend', '<span class="np-peek" aria-hidden="true"></span>'));
@@ -268,7 +273,7 @@ if (fine) {
   requestAnimationFrame(drift);
 }
 
-/* ---------- Owl: perches on the heading you're reading; a chaser glides to it and retargets mid-flight ---------- */
+/* ---------- Owl: on each heading a small light gathers, and as it fades the owl is there ---------- */
 const tpl = $('#owl-tpl');
 const owl = document.createElement('span');
 owl.className = 'owl-slot';
@@ -292,56 +297,31 @@ $$('main > section').forEach(sec => {
 });
 perches.get(hero).append(owl);
 
-let target = owl.parentElement, flying = false, errand = false, phase = 2, fx = 0, fy = 0, fs = 42, lastT = 0;
-const showFlyer = (x, y, s, rot = 0) => { flyer.style.transform = `translate3d(${x - 30}px, ${y - 30}px, 0) scale(${s / 60}) rotate(${rot}deg)`; };
+let target = owl.parentElement, errand = false, hop = 0;
 const center = el => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width }; };
+const showFlyer = (x, y, s, rot = 0) => { flyer.style.transform = `translate3d(${x - 30}px, ${y - 30}px, 0) scale(${s / 60}) rotate(${rot}deg)`; };
+const glow = document.createElement('span');
+glow.className = 'perch-glow';
+function appearAt(spot) {
+  const my = ++hop;
+  spot.append(glow);
+  if (reduce) { spot.append(owl); return; }
+  owl.classList.add('away');
+  glow.getAnimations().forEach(a => a.cancel());
+  glow.animate([{ opacity: 0, transform: 'scale(.3)' }, { opacity: 1, transform: 'scale(1.1)', offset: 0.45 }, { opacity: 0, transform: 'scale(1.5)' }], { duration: 950, easing: 'ease-out' });
+  setTimeout(() => {
+    if (my !== hop) return;
+    spot.append(owl);
+    owl.classList.remove('away');
+    owl.animate([{ opacity: 0, transform: 'scale(.6) translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 450, easing: 'cubic-bezier(.2,.8,.3,1.25)' });
+    const c = center(owl);
+    for (let i = 0; i < 10; i++) spawn(c.x + (Math.random() - 0.5) * c.w, c.y + (Math.random() - 0.5) * c.w, (Math.random() - 0.5) * 0.6, -Math.random() * 0.6, 35, 0.6 + Math.random());
+  }, 400);
+}
 function setTarget(spot) {
   if (!spot || spot === target) return;
   target = spot;
-  if (reduce) { target.append(owl); return; }
-  if (errand) return;
-  if (!flying) {
-    const a = center(owl), on = a.y > -20 && a.y < H + 20;
-    target.append(owl);
-    const b = center(owl);
-    // leave from where it sits, or enter from the edge it was scrolled past
-    fx = on ? a.x : (b.x > W / 2 ? W - 28 : 28);
-    fy = on ? a.y : (root.dataset.dir === 'up' ? H + 50 : -50);
-    fs = Math.max(a.w, 36);
-    phase = Math.hypot(b.x - fx, b.y - fy) > 260 ? 1 : 2;
-    flying = true; lastT = 0;
-    owl.classList.add('away');
-    flyer.classList.add('on');
-    requestAnimationFrame(chase);
-  } else {
-    target.append(owl); // the chaser simply re-aims next frame
-    phase = 1;
-  }
-}
-function chase(now) {
-  const dt = lastT ? Math.min(0.05, (now - lastT) / 1000) : 0.016;
-  lastT = now;
-  const b = center(owl);
-  let ax = b.x, ay = b.y;
-  if (phase === 1) {
-    // glide in above the heading, beside its end, so the path skims the edge rather than crossing the content
-    ax = b.x > W / 2 ? Math.min(W - 26, b.x + 90) : Math.max(26, b.x - 90);
-    ay = b.y - 46;
-    if (Math.hypot(ax - fx, ay - fy) < 40) phase = 2;
-  }
-  const k = 1 - Math.exp(-dt * 9);
-  const nx = fx + (ax - fx) * k, ny = fy + (ay - fy) * k;
-  const vx = nx - fx;
-  fx = nx; fy = ny; fs += (b.w - fs) * k;
-  showFlyer(fx, fy, fs, clamp(vx * 1.5, -18, 18));
-  if (Math.random() < 0.25) spawn(fx + (Math.random() - 0.5) * fs * 0.4, fy + fs * 0.2, (Math.random() - 0.5) * 0.5, Math.random() * 0.4, 40, 0.6 + Math.random());
-  if (phase === 2 && Math.hypot(b.x - fx, b.y - fy) < 1.5) {
-    flying = false;
-    flyer.classList.remove('on');
-    owl.classList.remove('away');
-    return;
-  }
-  requestAnimationFrame(chase);
+  if (!errand) appearAt(spot);
 }
 const perchObs = new IntersectionObserver(entries => {
   for (const e of entries) if (e.isIntersecting) setTarget(perches.get(e.target));
@@ -367,7 +347,7 @@ function leg([p0, p1, p2, p3], s0, s1, dur, sparkle) {
   });
 }
 $('[data-send-owl]').addEventListener('click', async e => {
-  if (reduce || flying || errand) return;
+  if (reduce || errand) return;
   e.preventDefault();
   const href = e.currentTarget.href;
   errand = true;
@@ -378,11 +358,10 @@ $('[data-send-owl]').addEventListener('click', async e => {
   flyer.classList.remove('errand');
   location.href = href;
   await sleep(600);
-  // come home: the chaser takes over from the left edge
+  // come home: it simply reappears on whichever heading you're at
   errand = false;
-  fx = -60; fy = H * 0.3; fs = 70; phase = 1; flying = true; lastT = 0;
-  target.append(owl);
-  requestAnimationFrame(chase);
+  flyer.classList.remove('on');
+  appearAt(target);
 });
 
 /* ---------- Marauder's-Map walker: footprints cross the top as you scroll (pooled, transform-only) ---------- */
@@ -760,19 +739,14 @@ const night = $('.foot-night'), parchment = $('.foot-parchment');
 if (new URLSearchParams(location.search).get('footer') === 'parchment') { night.hidden = true; parchment.hidden = false; }
 const footer = night.hidden ? parchment : night;
 $$('[data-top]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }));
-if (!night.hidden) {
-  const spot = $('.foot-spot');
-  perches.set(night, spot);
-  perchObs.observe(night);
-}
 
-/* ---------- Patronus: at the bottom, a silver dove bursts from the wand ---------- */
+/* ---------- Patronus: at the bottom, a silver doe bursts from the wand and gallops edge to edge ---------- */
 let patronusArmed = true, lastPatronus = -Infinity;
 new IntersectionObserver(([e]) => {
   if (!e.isIntersecting) { patronusArmed = true; return; }
   if (patronusArmed && performance.now() - lastPatronus > 20000) { patronusArmed = false; lastPatronus = performance.now(); patronus(); }
 }, { threshold: 0.6 }).observe(footer);
-const doveTpl = $('#dove-tpl');
+const doeTpl = $('#doe-tpl');
 const flash = Object.assign(document.createElement('div'), { className: 'cast-flash' });
 const beam = Object.assign(document.createElement('div'), { className: 'patronus-beam' });
 document.body.append(flash, beam);
@@ -789,36 +763,38 @@ function patronus() {
   flash.animate([{ opacity: 0 }, { opacity: 0.22, offset: 0.18 }, { opacity: 0 }], { duration: 1600, easing: 'ease-out' });
   const el = document.createElement('div');
   el.className = 'patronus';
-  el.append(doveTpl.content.cloneNode(true));
+  el.append(doeTpl.content.cloneNode(true));
   document.body.append(el);
-  // three swooping legs: left, right, left
-  const stops = [src, { x: W * 0.14, y: H * 0.5 }, { x: W * 0.86, y: H * 0.36 }, { x: W * 0.22, y: H * 0.2 }];
+  // she runs to the left edge, across to the right edge, back to the left, then dissolves
+  const band = H * 0.62, E = 90;
+  const stops = [src, { x: E, y: band }, { x: W - E, y: band - H * 0.06 }, { x: E, y: band - H * 0.12 }];
   const legs = stops.slice(1).map((b, i) => {
     const a = stops[i], dx = b.x - a.x;
-    return { x: [a.x, a.x + dx * 0.3, b.x - dx * 0.3, b.x], y: [a.y, a.y - 110, b.y - 110, b.y] };
+    return { x: [a.x, a.x + dx * 0.33, b.x - dx * 0.33, b.x], y: [a.y, a.y + (b.y - a.y) * 0.33, b.y, b.y], ms: 500 + Math.abs(dx) * 1.05 };
   });
-  const LEG = 1400, DUR = LEG * legs.length, t0 = performance.now();
+  const DUR = legs.reduce((t, g) => t + g.ms, 0), t0 = performance.now();
   let face = -1, lx = src.x, ly = src.y, puffed = false;
   const step = now => {
-    const T = clamp((now - t0) / DUR, 0, 1), k = Math.min(legs.length - 1, Math.floor(T * legs.length));
-    const e = ease(Math.min(1, T * legs.length - k)), g = legs[k];
-    const x = bez(g.x, e), y = bez(g.y, e), vx = x - lx, vy = y - ly;
+    const ms = clamp(now - t0, 0, DUR), T = ms / DUR;
+    let k = 0, acc = 0;
+    while (k < legs.length - 1 && ms > acc + legs[k].ms) acc += legs[k++].ms;
+    const g = legs[k], e = ease(clamp((ms - acc) / g.ms, 0, 1));
+    const x = bez(g.x, e), y = bez(g.y, e) - Math.abs(Math.sin(ms / 160)) * 10, vx = x - lx;
     lx = x; ly = y;
-    if (Math.abs(vx) > 0.4) face += (Math.sign(vx) - face) * 0.14; // turns through edge-on, like a bird banking
-    const sc = T < 0.08 ? 0.3 + 0.7 * (T / 0.08) : T > 0.9 ? 1 + (T - 0.9) * 3 : 1;
-    const op = T < 0.06 ? T / 0.06 : T > 0.9 ? Math.max(0, 1 - (T - 0.9) / 0.08) : 0.95;
-    const bank = clamp(vy * 2.2, -18, 18) * Math.sign(face);
+    if (Math.abs(vx) > 0.4) face += (Math.sign(vx) - face) * 0.16; // turns through edge-on at each edge
+    const sc = T < 0.06 ? 0.3 + 0.7 * (T / 0.06) : T > 0.92 ? 1 + (T - 0.92) * 3 : 1;
+    const op = T < 0.05 ? T / 0.05 : T > 0.92 ? Math.max(0, 1 - (T - 0.92) / 0.07) : 0.95;
     el.style.opacity = op;
-    el.style.transform = `translate3d(${x - 75}px, ${y - 56}px, 0) rotate(${bank}deg) scale(${sc * face}, ${sc})`;
-    // a ray of light from the wand to the dove, fading over the first sweep
-    const bo = Math.max(0, 1 - T * legs.length);
+    el.style.transform = `translate3d(${x - 80}px, ${y - 64}px, 0) scale(${sc * face}, ${sc})`;
+    // a ray of light from the wand to the doe, fading as she reaches the first edge
+    const bo = Math.max(0, 1 - ms / legs[0].ms);
     if (bo > 0) {
       const sx = wandOn ? px : src.x, sy = wandOn ? py : src.y, dist = Math.hypot(x - sx, y - sy);
       beam.style.opacity = bo * 0.85;
       beam.style.transform = `translate3d(${sx}px, ${sy - 6}px, 0) rotate(${Math.atan2(y - sy, x - sx)}rad) scaleX(${dist / 100})`;
     } else beam.style.opacity = 0;
-    if (op > 0.05) for (let i = 0; i < 2; i++) spawn(x - face * 40 + (Math.random() - 0.5) * 24, y + 6 + (Math.random() - 0.5) * 16, -face * Math.random() * 0.8, 0.2 + Math.random() * 0.5, 50 + Math.random() * 30, 0.6 + Math.random() * 1.4, SILVER);
-    if (!puffed && T > 0.92) { puffed = true; burst(x, y, 50, SILVER); }
+    if (op > 0.05) for (let i = 0; i < 2; i++) spawn(x - face * 50 + (Math.random() - 0.5) * 30, y + 20 + (Math.random() - 0.5) * 30, -face * Math.random() * 0.8, 0.2 + Math.random() * 0.5, 50 + Math.random() * 30, 0.6 + Math.random() * 1.4, SILVER);
+    if (!puffed && T > 0.93) { puffed = true; burst(x, y, 50, SILVER); }
     T < 1 ? requestAnimationFrame(step) : el.remove();
   };
   requestAnimationFrame(step);
@@ -836,6 +812,7 @@ else {
     const off = c / COLS - r / ROWS, side = off >= 0 ? 1 : -1, d = Math.round(Math.abs(off) * MAXD);
     const b = document.createElement('i');
     b.style.cssText = `left:${(c - half * 0.5) * 100 / COLS}%;top:${r * 100 / ROWS}%;--s:${side};--d:${d};--dr:${MAXD - d}`;
+    b.innerHTML = `<b style="left:${-(c - half * 0.5) * 100}%;top:${-r * 100}%">SA</b>`;
     bricksEl.append(b);
   }
   const openWall = on => frameEl.classList.toggle('open', on);
