@@ -608,18 +608,19 @@
       <span class="copied" role="status" aria-live="polite"></span>
     </div>
     <form class="howler" id="howler" novalidate>
-      <p class="howler-eyebrow">Parchment · Owl Post</p>
       <h3>Write a Howler</h3>
       <p class="howler-sub">Say what you need. It arrives straight in my inbox, and I reply myself.</p>
-      <div class="fld"><label for="hw-name">Who is sending this owl?</label><input id="hw-name" name="name" type="text" autocomplete="name" maxlength="80" required></div>
-      <div class="fld"><label for="hw-email">Where should the owl return?</label><input id="hw-email" name="email" type="email" autocomplete="email" maxlength="120" required></div>
+      <div class="row2">
+      <div class="fld"><label for="hw-name">Your name</label><input id="hw-name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="Hermione Granger" required></div>
+      <div class="fld"><label for="hw-email">Your email</label><input id="hw-email" name="email" type="email" autocomplete="email" maxlength="120" placeholder="owl@hogwarts.edu" required></div>
+      </div>
       <fieldset class="chips"><legend>What is it about?</legend>
         <label><input type="radio" name="topic" value="A role" checked><span>A role</span></label>
         <label><input type="radio" name="topic" value="Freelance work"><span>Freelance</span></label>
         <label><input type="radio" name="topic" value="A collaboration"><span>Collab</span></label>
         <label><input type="radio" name="topic" value="Just saying hi"><span>Just saying hi</span></label>
       </fieldset>
-      <div class="fld"><label for="hw-msg">Your Howler</label><textarea id="hw-msg" name="message" rows="5" maxlength="2000" required></textarea></div>
+      <div class="fld"><label for="hw-msg">Your message</label><textarea id="hw-msg" name="message" rows="4" maxlength="2000" placeholder="Tell me what you need, or just say hello." required></textarea></div>
       <input class="hp" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="howler-actions"><button type="submit" class="btn btn-gold">Send Owl</button><span class="howler-msg" role="status" aria-live="polite"></span></div>
     </form>
@@ -628,6 +629,8 @@
       <p>Thank you. I read every one myself and will write back soon.</p>
       <button type="button" class="btn btn-ghost" data-howler-again>Write another</button>
     </div>
+  </div>
+  <div class="post-links rv">
     <ul class="addresses">
       <li><a href="mailto:reach.saksham.agrawal@gmail.com"><span>Email</span>reach.saksham.agrawal@gmail.com</a></li>
       <li><a href="https://www.linkedin.com/in/sakshamhere/" target="_blank" rel="noopener"><span>LinkedIn</span>in/sakshamhere</a></li>
