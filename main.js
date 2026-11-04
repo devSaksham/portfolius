@@ -186,7 +186,7 @@ function rideStep(now) {
   const mx = rx - ox, my = ry - oy;
   if (Math.abs(mx) > 0.3) rFace += (Math.sign(mx) - rFace) * 0.12;
   const tilt = Math.abs(mx) + Math.abs(my) > 0.2 ? clamp(Math.atan2(my, Math.abs(mx)) * 57.3, -38, 38) : 0;
-  rider.style.transform = `translate3d(${rx - 55}px, ${ry - 52 + (1 - PAR) * scrollY}px, 0) rotate(${tilt * Math.sign(rFace)}deg) scaleX(${rFace})`;
+  rider.style.transform = `translate3d(${rx - 45}px, ${ry - 44 + (1 - PAR) * scrollY}px, 0) rotate(${tilt * Math.sign(rFace)}deg) scaleX(${rFace})`;
   if (Math.hypot(tx - rx, ty - ry) > 0.5 || Math.abs(Math.abs(rFace) - 1) > 0.01) requestAnimationFrame(rideStep);
   else riding = false;
 }
