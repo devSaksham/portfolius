@@ -366,29 +366,14 @@ function leg([p0, p1, p2, p3], s0, s1, dur, sparkle) {
     requestAnimationFrame(step);
   });
 }
-$('[data-send-owl]').addEventListener('click', async e => {
+// "Send an owl" simply takes you to the form
+$('[data-send-owl]').addEventListener('click', e => {
   const form = $('#howler');
-  if (reduce || errand) return; // plain anchor jump
+  if (reduce) return; // plain anchor jump
   e.preventDefault();
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
   setTimeout(() => $('input', form).focus({ preventScroll: true }), 500);
-  await owlErrand();
 });
-// the owl swoops off the screen and comes home again (also used when a Howler is sent)
-async function owlErrand() {
-  if (reduce || errand) return;
-  errand = true;
-  const h = center(owl);
-  owl.classList.add('away');
-  flyer.classList.add('on', 'errand');
-  await leg([h, { x: h.x + W * 0.15, y: h.y - H * 0.3 }, { x: W * 0.8, y: H * 0.1 }, { x: W + 120, y: -80 }], h.w, 70, 1300, 1);
-  flyer.classList.remove('errand');
-  await sleep(600);
-  // come home: it simply reappears on whichever heading you're at
-  errand = false;
-  flyer.classList.remove('on');
-  appearAt(target);
-}
 
 /* ---------- Write a Howler: the contact form, delivered to my inbox by Web3Forms ---------- */
 // Public form key from web3forms.com (made for this email address; safe to ship in the page).
@@ -421,7 +406,6 @@ const MAIL_TO = 'reach.saksham.agrawal@gmail.com';
       form.reset();
       form.hidden = true; done.hidden = false;
       say('');
-      owlErrand();
     } catch {
       say('The owl got lost. Try again, or email me directly.', true);
     } finally { form.classList.remove('is-sending'); btn.disabled = false; }

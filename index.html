@@ -18,7 +18,7 @@
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=UnifrakturMaguntia&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Cinzel:wght@400;500;600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=IM+Fell+English:ital@0;1&family=IBM+Plex+Mono:wght@400&family=Old+Standard+TT:ital,wght@0,400;0,700;1,400&family=UnifrakturMaguntia&display=swap"></noscript>
 <link rel="preload" href="assets/HarryP-subset.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="styles.css?v=20261104b">
+<link rel="stylesheet" href="styles.css?v=20261104d">
 <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
@@ -613,13 +613,8 @@
       <div class="row2">
       <div class="fld"><label for="hw-name">Your name</label><input id="hw-name" name="name" type="text" autocomplete="name" maxlength="80" placeholder="Hermione Granger" required></div>
       <div class="fld"><label for="hw-email">Your email</label><input id="hw-email" name="email" type="email" autocomplete="email" maxlength="120" placeholder="owl@hogwarts.edu" required></div>
+      <div class="fld"><label for="hw-topic">About</label><select id="hw-topic" name="topic"><option>A role</option><option>Freelance work</option><option>A collaboration</option><option>Just saying hi</option></select></div>
       </div>
-      <fieldset class="chips"><legend>What is it about?</legend>
-        <label><input type="radio" name="topic" value="A role" checked><span>A role</span></label>
-        <label><input type="radio" name="topic" value="Freelance work"><span>Freelance</span></label>
-        <label><input type="radio" name="topic" value="A collaboration"><span>Collab</span></label>
-        <label><input type="radio" name="topic" value="Just saying hi"><span>Just saying hi</span></label>
-      </fieldset>
       <div class="fld"><label for="hw-msg">Your message</label><textarea id="hw-msg" name="message" rows="4" maxlength="2000" placeholder="Tell me what you need, or just say hello." required></textarea></div>
       <input class="hp" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
       <div class="howler-actions"><button type="submit" class="btn btn-gold">Send Owl</button><span class="howler-msg" role="status" aria-live="polite"></span></div>
@@ -691,6 +686,6 @@
   <p class="pal-foot"><kbd>↑</kbd><kbd>↓</kbd> move · <kbd>↵</kbd> cast · <kbd>esc</kbd> close</p>
 </dialog>
 
-<script src="main.js?v=20261104b" defer></script>
+<script src="main.js?v=20261104d" defer></script>
 </body>
 </html>
