@@ -366,6 +366,27 @@ function leg([p0, p1, p2, p3], s0, s1, dur, sparkle) {
     requestAnimationFrame(step);
   });
 }
+// the owl takes the letter: it lifts off from its window, flies away, and comes home again
+async function owlErrand() {
+  if (reduce || errand) return;
+  const home = $('.window-spot', $('#owl-post'));
+  errand = true;
+  try {
+    // make sure the owl is on its perch in the window before it takes off
+    if (owl.parentElement !== home) { hop++; home.append(owl); owl.classList.remove('away'); }
+    target = home;
+    const h = center(owl);
+    owl.classList.add('away');
+    flyer.classList.add('on', 'errand');
+    await leg([h, { x: h.x + W * 0.15, y: h.y - H * 0.3 }, { x: W * 0.8, y: H * 0.1 }, { x: W + 120, y: -80 }], h.w, 70, 1500, 1);
+  } finally {
+    flyer.classList.remove('errand');
+    await sleep(1200);
+    flyer.classList.remove('on');
+    errand = false;
+    appearAt(target); // back on its perch, wherever you have scrolled to
+  }
+}
 // "Send an owl" simply takes you to the form
 $('[data-send-owl]').addEventListener('click', e => {
   const form = $('#howler');
@@ -404,8 +425,11 @@ const MAIL_TO = 'reach.saksham.agrawal@gmail.com';
       const data = await r.json();
       if (!r.ok || !data.success) throw new Error(data.message || 'failed');
       form.reset();
-      form.hidden = true; done.hidden = false;
       say('');
+      form.classList.add('is-sent');   // the letter lifts away…
+      owlErrand();                     // …and the owl takes it
+      await sleep(reduce ? 0 : 650);
+      form.hidden = true; form.classList.remove('is-sent'); done.hidden = false;
     } catch {
       say('The owl got lost. Try again, or email me directly.', true);
     } finally { form.classList.remove('is-sending'); btn.disabled = false; }
