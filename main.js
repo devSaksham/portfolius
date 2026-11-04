@@ -714,7 +714,7 @@ const COMMANDS = [
   ['Go to Certificates', 'cd trophy-room', go('trophy-room')],
   ['Go to Contact', 'cd owl-post', go('owl-post')],
   ['Back to the Great Hall', 'cd ~', go('great-hall')],
-  ['Spell Class', 'learn commands as spells', () => (location.href = 'spell-class.html')],
+  ['Spell Class', 'learn commands as spells', () => (location.href = 'spell-class')],
   ['Accio resume', 'opens on Google Drive', open('https://drive.google.com/file/d/1hk_MAIPaLUcRsX-Tg9IukpXzCxVgiDun/view?usp=sharing')],
   ['Copy email', 'reach.saksham.agrawal@gmail.com', () => copyEmail()],
   ['Sort me', 'sorting hat quiz', () => { go('sorting-hat')(); setTimeout(() => $('[data-hat="me"]').click(), 600); }],
