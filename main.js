@@ -166,12 +166,6 @@ rider.className = 'rider';
 rider.setAttribute('aria-hidden', 'true');
 rider.append($('#rider-tpl').content.cloneNode(true));
 worldClip.append(rider);
-// TEMP: the original drawn rider trails behind the new one, for side-by-side comparison
-const riderOld = document.createElement('div');
-riderOld.className = 'rider rider-old';
-riderOld.setAttribute('aria-hidden', 'true');
-riderOld.append($('#rider-old-tpl').content.cloneNode(true));
-worldClip.append(riderOld);
 let track = [], rx = null, ry = 0, rFace = 1, riding = false, rLast = 0;
 // target: the point on the line level with the middle of the screen
 function ride() {
@@ -186,14 +180,13 @@ function rideStep(now) {
   let lo = 0, hi = track.length - 1;
   while (hi - lo > 1) { const m = (lo + hi) >> 1; track[m][1] < want ? (lo = m) : (hi = m); }
   const [tx, ty] = track[hi];
-  if (rx === null) { rx = tx; ry = ty; rider.classList.add('on'); riderOld.classList.add('on'); }
+  if (rx === null) { rx = tx; ry = ty; rider.classList.add('on'); }
   const k = 1 - Math.exp(-dt * 8), ox = rx, oy = ry;
   rx += (tx - rx) * k; ry += (ty - ry) * k;
   const mx = rx - ox, my = ry - oy;
   if (Math.abs(mx) > 0.3) rFace += (Math.sign(mx) - rFace) * 0.12;
   const tilt = Math.abs(mx) + Math.abs(my) > 0.2 ? clamp(Math.atan2(my, Math.abs(mx)) * 57.3, -38, 38) : 0;
   rider.style.transform = `translate3d(${rx - 45}px, ${ry - 44 + (1 - PAR) * scrollY}px, 0) rotate(${tilt * Math.sign(rFace)}deg) scaleX(${rFace})`;
-  riderOld.style.transform = `translate3d(${rx - 45}px, ${ry - 52 + (1 - PAR) * scrollY}px, 0) rotate(${tilt * Math.sign(rFace)}deg) scaleX(${rFace}) translateX(-110px)`;
   if (Math.hypot(tx - rx, ty - ry) > 0.5 || Math.abs(Math.abs(rFace) - 1) > 0.01) requestAnimationFrame(rideStep);
   else riding = false;
 }
