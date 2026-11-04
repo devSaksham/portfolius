@@ -367,22 +367,67 @@ function leg([p0, p1, p2, p3], s0, s1, dur, sparkle) {
   });
 }
 $('[data-send-owl]').addEventListener('click', async e => {
-  if (reduce || errand) return;
+  const form = $('#howler');
+  if (reduce || errand) return; // plain anchor jump
   e.preventDefault();
-  const href = e.currentTarget.href;
+  form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => $('input', form).focus({ preventScroll: true }), 500);
+  await owlErrand();
+});
+// the owl swoops off the screen and comes home again (also used when a Howler is sent)
+async function owlErrand() {
+  if (reduce || errand) return;
   errand = true;
   const h = center(owl);
   owl.classList.add('away');
   flyer.classList.add('on', 'errand');
   await leg([h, { x: h.x + W * 0.15, y: h.y - H * 0.3 }, { x: W * 0.8, y: H * 0.1 }, { x: W + 120, y: -80 }], h.w, 70, 1300, 1);
   flyer.classList.remove('errand');
-  location.href = href;
   await sleep(600);
   // come home: it simply reappears on whichever heading you're at
   errand = false;
   flyer.classList.remove('on');
   appearAt(target);
-});
+}
+
+/* ---------- Write a Howler: the contact form, delivered to my inbox by Web3Forms ---------- */
+// Public form key from web3forms.com (made for this email address; safe to ship in the page).
+const WEB3FORMS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY';
+const MAIL_TO = 'reach.saksham.agrawal@gmail.com';
+{
+  const form = $('#howler'), done = $('.howler-done'), msg = $('.howler-msg', form), btn = $('button[type="submit"]', form);
+  const say = (t, err) => { msg.textContent = t; msg.classList.toggle('err', !!err); };
+  form.addEventListener('input', e => e.target.classList.remove('is-bad'));
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    const f = new FormData(form);
+    const bad = ['name', 'email', 'message'].filter(k => !String(f.get(k) || '').trim() || (k === 'email' && !form.elements.email.checkValidity()));
+    $$('.is-bad', form).forEach(x => x.classList.remove('is-bad'));
+    if (bad.length) { bad.forEach(k => form.elements[k].classList.add('is-bad')); form.elements[bad[0]].focus(); say('Please fill in the highlighted fields.', true); return; }
+    if (f.get('botcheck')) return; // a bot filled the hidden box
+    const name = f.get('name').trim(), email = f.get('email').trim(), message = f.get('message').trim(), topic = f.get('topic');
+    const mailto = () => { location.href = `mailto:${MAIL_TO}?subject=${encodeURIComponent('Howler from ' + name + ': ' + topic)}&body=${encodeURIComponent(message + '\n\n' + name + ' (' + email + ')')}`; };
+    if (WEB3FORMS_KEY.startsWith('YOUR_')) { say('Opening your email app instead…'); mailto(); return; }
+    form.classList.add('is-sending'); btn.disabled = true; say('The owl is being dispatched…');
+    try {
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 15000);
+      const r = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST', signal: ctl.signal, headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ access_key: WEB3FORMS_KEY, subject: `Howler from ${name}: ${topic}`, from_name: 'Portfolio Owl Post', name, email, replyto: email, topic, message })
+      });
+      clearTimeout(timer);
+      const data = await r.json();
+      if (!r.ok || !data.success) throw new Error(data.message || 'failed');
+      form.reset();
+      form.hidden = true; done.hidden = false;
+      say('');
+      owlErrand();
+    } catch {
+      say('The owl got lost. Try again, or email me directly.', true);
+    } finally { form.classList.remove('is-sending'); btn.disabled = false; }
+  });
+  $('[data-howler-again]').addEventListener('click', () => { done.hidden = true; form.hidden = false; $('input', form).focus(); });
+}
 
 /* ---------- Marauder's-Map walker: footprints cross the top as you scroll (pooled, transform-only) ---------- */
 const walker = $('.walker'), prints = $('.prints', walker), tag = $('.tag', walker), corridor = $('.corridor', walker);

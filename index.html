@@ -603,9 +603,30 @@
     <h2>The Owl Post</h2>
     <p class="lede">Have something that needs to be built? Open to freelance and full-time opportunities. Reach out about a role, a project, or just to talk shop. I read everything myself.</p>
     <div class="post-actions">
-      <a class="btn btn-gold" href="mailto:reach.saksham.agrawal@gmail.com" data-send-owl>Send an owl →</a>
+      <a class="btn btn-gold" href="#howler" data-send-owl>Send an owl →</a>
       <button type="button" class="btn btn-ghost" data-copy="reach.saksham.agrawal@gmail.com">Copy email</button>
       <span class="copied" role="status" aria-live="polite"></span>
+    </div>
+    <form class="howler" id="howler" novalidate>
+      <p class="howler-eyebrow">Parchment · Owl Post</p>
+      <h3>Write a Howler</h3>
+      <p class="howler-sub">Say what you need. It arrives straight in my inbox, and I reply myself.</p>
+      <div class="fld"><label for="hw-name">Who is sending this owl?</label><input id="hw-name" name="name" type="text" autocomplete="name" maxlength="80" required></div>
+      <div class="fld"><label for="hw-email">Where should the owl return?</label><input id="hw-email" name="email" type="email" autocomplete="email" maxlength="120" required></div>
+      <fieldset class="chips"><legend>What is it about?</legend>
+        <label><input type="radio" name="topic" value="A role" checked><span>A role</span></label>
+        <label><input type="radio" name="topic" value="Freelance work"><span>Freelance</span></label>
+        <label><input type="radio" name="topic" value="A collaboration"><span>Collab</span></label>
+        <label><input type="radio" name="topic" value="Just saying hi"><span>Just saying hi</span></label>
+      </fieldset>
+      <div class="fld"><label for="hw-msg">Your Howler</label><textarea id="hw-msg" name="message" rows="5" maxlength="2000" required></textarea></div>
+      <input class="hp" type="checkbox" name="botcheck" tabindex="-1" autocomplete="off" aria-hidden="true">
+      <div class="howler-actions"><button type="submit" class="btn btn-gold">Send Owl</button><span class="howler-msg" role="status" aria-live="polite"></span></div>
+    </form>
+    <div class="howler-done" role="status" hidden>
+      <h3>Your owl is on its way</h3>
+      <p>Thank you. I read every one myself and will write back soon.</p>
+      <button type="button" class="btn btn-ghost" data-howler-again>Write another</button>
     </div>
     <ul class="addresses">
       <li><a href="mailto:reach.saksham.agrawal@gmail.com"><span>Email</span>reach.saksham.agrawal@gmail.com</a></li>
@@ -627,7 +648,7 @@
     <h2 class="foot-title">Let’s build something <span class="hp-word">magical</span>.</h2>
     <p class="foot-sub">Open to full-time roles and freelance work. I read every owl myself.</p>
     <div class="foot-ctas">
-      <a class="btn btn-gold" href="mailto:reach.saksham.agrawal@gmail.com">Send an owl</a>
+      <a class="btn btn-gold" href="#howler">Send an owl</a>
       <a class="btn btn-ghost" href="https://drive.google.com/file/d/1hk_MAIPaLUcRsX-Tg9IukpXzCxVgiDun/view?usp=sharing" target="_blank" rel="noopener">Read my resume ↗︎</a>
     </div>
   </div>
