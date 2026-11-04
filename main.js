@@ -522,8 +522,20 @@ async function speak(text) {
   const q = `“${text}”`;
   if (reduce) { sayEl.textContent = q; return; }
   hat.classList.add('speaking');
+  talkFrames(my);
   for (let i = 1; i <= q.length && my === typing; i++) { sayEl.textContent = q.slice(0, i); await sleep(12); }
-  if (my === typing) hat.classList.remove('speaking');
+  if (my === typing) { hat.classList.remove('speaking'); delete hat.dataset.f; }
+}
+// mouth movement: step through the open-mouth frames at an uneven pace, never repeating the same one twice
+async function talkFrames(my) {
+  const pool = ['excited', 'happy', 'talk', 'excited', 'happy'];
+  let last = '';
+  while (my === typing && hat.classList.contains('speaking')) {
+    let next;
+    do { next = pool[(Math.random() * pool.length) | 0]; } while (next === last);
+    hat.dataset.f = last = next;
+    await sleep(190 + Math.random() * 130);
+  }
 }
 const wobble = async ms => { if (reduce) return; hat.classList.add('thinking'); await sleep(ms); hat.classList.remove('thinking'); };
 function sortInto(house, line) {
