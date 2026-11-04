@@ -700,6 +700,9 @@ function replayChart() {
   path.animate([{ strokeDashoffset: len }, { strokeDashoffset: 0 }], { duration: 1600, easing: 'ease' });
 }
 function drawLedger(src) {
+  // each source shows its own freshness, so one stalled source is never passed off as current
+  const asOf = activity?.asOf?.[src] || activity?.updated;
+  if (asOf) $('.ledger-upd').textContent = 'Updated ' + fmtUpdated(asOf);
   ledgerSrc = src;
   const chart = src === 'contest';
   $('.ledger-chart').hidden = !chart;
@@ -708,12 +711,11 @@ function drawLedger(src) {
   chart ? drawChart(activity.contest) : drawHeatmap(activity, src);
 }
 const fmtUpdated = d => new Date(d + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
-fetch('data/activity.json').then(r => r.json()).then(data => {
+fetch('data/activity.json', { cache: 'no-cache' }).then(r => r.json()).then(data => { // always revalidate: a changed file is picked up straight away
   activity = data;
   if (data.leetcode?.solved?.All) $$('[data-lc-solved]').forEach(el => (el.textContent = data.leetcode.solved.All));
   if (data.leetcode?.solved?.All) $('[data-sb="lc"]').textContent = `LeetCode ${data.leetcode.solved.All} ✓`;
   if (data.contest) $('[data-sb="contest"]').textContent = `contest rating ${data.contest.rating}`;
-  $('.ledger-upd').textContent = 'Updated ' + fmtUpdated(data.updated);
   $$('[data-updated]').forEach(el => (el.textContent = ` · ledger updated ${fmtUpdated(data.updated)}`));
   drawLedger('leetcode');
   $$('.ledger-src button').forEach(b => b.addEventListener('click', () => {

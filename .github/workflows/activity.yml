@@ -2,24 +2,45 @@ name: Update activity heatmap
 
 on:
   schedule:
-    - cron: "30 0 * * *" # daily, 06:00 IST
+    - cron: "17 */6 * * *" # every 6 hours (a few minutes past, so it misses the top-of-the-hour rush)
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# one run at a time; a newer run waits instead of racing the bot's own push
+concurrency:
+  group: activity
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python scripts/update_activity.py
+      - name: Fetch LeetCode + GitHub activity
+        id: fetch
+        run: python scripts/update_activity.py
+        continue-on-error: true # still publish whatever refreshed, then fail the run below so you are notified
       - name: Commit if changed
         run: |
           git config user.name "activity-bot"
           git config user.email "actions@users.noreply.github.com"
           git add data/activity.json
-          git diff --cached --quiet || (git commit -m "Update activity data" && git push)
+          if ! git diff --cached --quiet; then
+            git commit -m "Update activity data"
+            # you may have pushed in the meantime: rebase the bot commit on top, then push (retry a couple of times)
+            for i in 1 2 3; do
+              git pull --rebase origin "${GITHUB_REF_NAME}" && git push && break
+              sleep $((i * 5))
+            done
+          fi
+      - name: Fail the run if a source could not be refreshed
+        if: steps.fetch.outcome == 'failure'
+        run: |
+          echo "::error::LeetCode or GitHub could not be refreshed; the previous numbers were kept. See the 'Fetch' step."
+          exit 1
