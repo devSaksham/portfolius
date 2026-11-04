@@ -23,12 +23,13 @@ try {
 /* ---------- Sparkles (owl, hat, rocket, patronus) ---------- */
 const cv = $('#sparkles'), ctx = cv.getContext('2d');
 const parts = [];
-let sparkling = false;
+let sparkling = false, dirty = null; // dirty: the box the last frame painted into
 const GOLD = ['#fff6d5', '#f1d79a', '#dff4ff', '#bfe6ff'], SILVER = ['#ffffff', '#e6f6ff', '#bfe6ff', '#9fd8ff'];
 function resizeCanvas() {
   const dpr = Math.min(devicePixelRatio || 1, 2);
   cv.width = W * dpr; cv.height = H * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  dirty = null; // resizing blanks the canvas
 }
 resizeCanvas();
 function spawn(x, y, vx, vy, life, size, colors = GOLD) {
@@ -43,7 +44,9 @@ function burst(x, y, n, colors) {
   }
 }
 function tick() {
-  ctx.clearRect(0, 0, W, H);
+  // wipe only the box the previous frame painted into, not the whole viewport
+  if (dirty) ctx.clearRect(dirty[0], dirty[1], dirty[2] - dirty[0], dirty[3] - dirty[1]);
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   ctx.globalCompositeOperation = 'lighter';
   for (let i = parts.length - 1; i >= 0; i--) {
     const p = parts[i];
@@ -54,8 +57,12 @@ function tick() {
     ctx.fillStyle = p.c;
     ctx.beginPath(); ctx.arc(p.x, p.y, s, 0, 7); ctx.fill();
     if (p.size > 1.9) { ctx.fillRect(p.x - s * 3, p.y - 0.35, s * 6, 0.7); ctx.fillRect(p.x - 0.35, p.y - s * 3, 0.7, s * 6); }
+    const r = s * 3 + 2; // the sparkle cross reaches 3 radii
+    if (p.x - r < x0) x0 = p.x - r; if (p.y - r < y0) y0 = p.y - r;
+    if (p.x + r > x1) x1 = p.x + r; if (p.y + r > y1) y1 = p.y + r;
   }
   ctx.globalAlpha = 1;
+  dirty = x1 > x0 ? [Math.floor(x0), Math.floor(y0), Math.ceil(x1), Math.ceil(y1)] : null;
   if (parts.length) requestAnimationFrame(tick); else sparkling = false;
 }
 
@@ -841,6 +848,31 @@ const LEGS = {
   fn: { hip: [150, 98], len: [34, 30, 9], w: [12, 6, 5] }, ff: { hip: [142, 98], len: [34, 30, 9], w: [12, 6, 5] },
   rn: { hip: [72, 84], len: [30, 27, 28, 9], w: [20, 11, 6, 5], rear: true }, rf: { hip: [80, 84], len: [30, 27, 28, 9], w: [20, 11, 6, 5], rear: true },
 };
+// The silver glow round her used to be three stacked CSS drop-shadows on the moving layer, which the browser re-blurs on every
+// frame she moves. The halo is soft and slow, so it is baked once into a still image (the same three blurs, colours and
+// strengths, computed from her body and head) and the compositor just moves that image with her.
+let glowUrl = '';
+function bakeGlow() {
+  const U = 240 / 220 * 1.1; // svg units per css px (tuned against the old live glow so the halo looks the same)
+  const main = doeTpl.content.querySelector('.main');
+  const shape = [...main.querySelectorAll(':scope > path, .head path')].map(p => `<path d="${p.getAttribute('d')}"/>`).join('');
+  // body, head and her soft aura feed the same three blurs, colours and strengths as the old drop-shadows
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="-120 -130 480 400" width="480" height="400">
+<defs><filter id="g" filterUnits="userSpaceOnUse" x="-120" y="-130" width="480" height="400" color-interpolation-filters="sRGB">
+<feGaussianBlur in="SourceAlpha" stdDeviation="${3 * U}" result="b1"/><feFlood flood-color="rgb(210,240,255)" flood-opacity="1"/><feComposite in2="b1" operator="in" result="s1"/>
+<feMerge result="m1"><feMergeNode in="SourceGraphic"/><feMergeNode in="s1"/></feMerge>
+<feGaussianBlur in="m1" stdDeviation="${11 * U}" result="b2"/><feFlood flood-color="rgb(150,210,255)" flood-opacity="1"/><feComposite in2="b2" operator="in" result="s2"/>
+<feMerge result="m2"><feMergeNode in="SourceGraphic"/><feMergeNode in="s1"/><feMergeNode in="s2"/></feMerge>
+<feGaussianBlur in="m2" stdDeviation="${30 * U}" result="b3"/><feFlood flood-color="rgb(120,190,255)" flood-opacity=".675"/><feComposite in2="b3" operator="in" result="s3"/>
+<feMerge><feMergeNode in="s3"/><feMergeNode in="s2"/><feMergeNode in="s1"/></feMerge></filter>
+<radialGradient id="a"><stop offset="0" stop-color="#cfeaff" stop-opacity=".28"/><stop offset=".6" stop-color="#9fd4ff" stop-opacity=".1"/><stop offset="1" stop-color="#9fd4ff" stop-opacity="0"/></radialGradient></defs>
+<g filter="url(#g)"><ellipse cx="118" cy="86" rx="122" ry="74" fill="url(#a)"/><g fill="#fff" fill-opacity=".6">${shape}</g></g></svg>`;
+  const img = new Image();
+  img.decoding = 'async';
+  img.onload = () => { glowUrl = img.src; };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+setTimeout(bakeGlow, 1200); // long before she is first cast, off the critical path
 // gallop phase offsets per leg: hinds then fores, each pair slightly split
 const GALLOP = { rn: 0, rf: 0.12, fn: 0.5, ff: 0.62 };
 const smooth = t => t * t * (3 - 2 * t);
@@ -854,6 +886,11 @@ function patronus() {
   burst(src.x, src.y, 50, SILVER);
   const el = document.createElement('div');
   el.className = 'patronus';
+  if (glowUrl) { // the baked halo sits behind her and moves with her
+    const g = new Image();
+    g.className = 'patronus-glow'; g.alt = ''; g.src = glowUrl;
+    el.append(g);
+  } else el.classList.add('live-glow'); // not ready yet: fall back to the live CSS glow
   el.append(doeTpl.content.cloneNode(true));
   document.body.append(el);
   const rig = {};
@@ -885,7 +922,7 @@ function patronus() {
   const leg2 = { from: first > 0 ? W + off : -off, to: first > 0 ? -off : W + off, y0: lane - 10, y1: lane - 40 };
   const SPEED = 0.55; // px per ms at full gallop
   const D1 = 700 + Math.abs(leg1.to - leg1.from) / SPEED, PAUSE = 450, D2 = Math.abs(leg2.to - leg2.from) / SPEED, END = D1 + PAUSE + D2;
-  let phase = 0, lastNow = performance.now(), ly = src.y;
+  let phase = 0, lastNow = performance.now(), ly = src.y, hooves = null, lastPoseAt = 0, frameAvg = 16.7;
   const t0 = lastNow;
   const step = now => {
     const t = clamp(now - t0, 0, END), dt = Math.min(50, now - lastNow);
@@ -905,14 +942,21 @@ function patronus() {
     ly = y;
     // a continuous gallop: hind legs then forelegs, with a body bob and a gentle head nod
     phase += dt / 520;
-    const hooves = [];
-    for (const k in GALLOP) {
-      const a = (phase + GALLOP[k]) * Math.PI * 2;
-      hooves.push(pose(k, -46 * Math.sin(a), 70 * Math.max(0, Math.cos(a))));
+    // Redrawing the legs repaints two blurred SVG filters plus the glow stack, which is the costly part. The doe's
+    // position, bob and tilt move on the compositor every frame; the legs are redrawn at most ~60 times a second,
+    // and ~30 when frames are running slow, so a weak device keeps scrolling smoothly. Gallop speed stays time-based.
+    frameAvg += (dt - frameAvg) * 0.1;
+    if (!hooves || now - lastPoseAt >= (frameAvg > 24 ? 30 : 14)) {
+      lastPoseAt = now;
+      hooves = [];
+      for (const k in GALLOP) {
+        const a = (phase + GALLOP[k]) * Math.PI * 2;
+        hooves.push(pose(k, -46 * Math.sin(a), 70 * Math.max(0, Math.cos(a))));
+      }
+      heads.forEach(g => g.setAttribute('transform', `rotate(${-3 + Math.sin(phase * Math.PI * 4) * 3} 146 76)`));
     }
     const bob = Math.abs(Math.sin(phase * Math.PI * 2)) * 8;
     const pitch = clamp(vy * 2.5, -10, 10) + Math.sin(phase * Math.PI * 2) * 2.5;
-    heads.forEach(g => g.setAttribute('transform', `rotate(${-3 + Math.sin(phase * Math.PI * 4) * 3} 146 76)`));
     el.style.opacity = op;
     el.style.transform = `translate3d(${x - 110}px, ${y - 167 - bob}px, 0) rotate(${pitch * face}deg) scale(${sc * face}, ${sc})`;
     // light lifts off her hooves and trails behind; mist swirls round her

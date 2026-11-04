@@ -807,8 +807,10 @@ html.intro .topbar, html.intro .walker { animation: copy-in .8s ease-out 1.4s bo
 .chart-tip.on { opacity: 1; }
 
 /* ===== Patronus ===== */
-.patronus { position: fixed; left: 0; top: 0; z-index: 87; width: 220px; height: 183px; pointer-events: none; opacity: 0; will-change: transform, opacity;
-  filter: drop-shadow(0 0 6px rgba(210,240,255,.95)) drop-shadow(0 0 22px rgba(150,210,255,.75)) drop-shadow(0 0 60px rgba(120,190,255,.45)); }
+.patronus { position: fixed; left: 0; top: 0; z-index: 87; width: 220px; height: 183px; pointer-events: none; opacity: 0; will-change: transform, opacity; contain: layout style; }
+.patronus-glow { position: absolute; left: -110px; top: -110px; width: 440px; height: 367px; max-width: none; pointer-events: none; }
+.patronus.live-glow { filter: drop-shadow(0 0 6px rgba(210,240,255,.95)) drop-shadow(0 0 22px rgba(150,210,255,.75)) drop-shadow(0 0 60px rgba(120,190,255,.45)); }
+.patronus .doe { position: relative; }
 .doe { width: 100%; height: 100%; overflow: visible; }
 .doe .main, .doe .far { fill: #e8f6ff; stroke: #e8f6ff; }
 .doe [data-leg] path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
