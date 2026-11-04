@@ -381,13 +381,13 @@
 <section id="sorting-hat" class="hat-sec" data-room="The Sorting Hat" aria-labelledby="hat-h">
   <div class="hat-stage">
     <button type="button" class="hat" aria-label="Poke the Sorting Hat">
-      <svg viewBox="0 0 200 180" aria-hidden="true">
-        <path class="brim" d="M10 150c30-18 150-18 180 0-20 14-160 14-180 0z"/>
-        <path class="cone" d="M40 146c6-30 20-46 34-58 6-30 14-56 40-80-6 26 0 40 10 48-14 4-20 14-18 26 18 10 34 30 44 62-30 10-80 10-110 2z"/>
-        <path class="crease" d="M62 118c10 6 24 6 34 0M70 104c6-4 12-4 18 0M106 102c6-4 12-4 18 0"/>
-        <path class="mouth" d="M78 132c14 8 36 8 50 0"/>
-        <path class="patch" d="M120 64l14 6-4 14-14-4z"/>
-      </svg>
+      <div class="frames" aria-hidden="true">
+        <img class="f f-idle" src="assets/hat-idle.webp" width="400" height="381" alt="" decoding="async">
+        <img class="f f-talk" src="assets/hat-talk.webp" width="400" height="381" alt="" decoding="async">
+        <img class="f f-excited" src="assets/hat-excited.webp" width="400" height="381" alt="" decoding="async">
+        <img class="f f-think" src="assets/hat-think.webp" width="400" height="381" alt="" decoding="async">
+        <img class="f f-happy" src="assets/hat-happy.webp" width="400" height="381" alt="" decoding="async">
+      </div>
     </button>
     <div class="banner" aria-hidden="true"><span></span></div>
   </div>
@@ -493,7 +493,7 @@
   <div class="records-grid">
     <figure class="portrait rv">
       <div class="frame">
-        <div class="sitter"><img src="assets/portrait.webp" alt="Saksham Agrawal in Hogwarts robes" width="600" height="800" loading="lazy" decoding="async"><video class="sitter-vid" muted loop playsinline preload="none" aria-hidden="true" data-src="assets/portrait.mp4"></video><div class="bricks" aria-hidden="true"></div></div>
+        <div class="sitter"><img src="assets/portrait.webp" alt="Saksham Agrawal in Hogwarts robes" width="600" height="800" decoding="async"><video class="sitter-vid" muted loop playsinline preload="none" aria-hidden="true" data-src="assets/portrait.mp4"></video><div class="bricks" aria-hidden="true"></div></div>
       </div>
       <figcaption>Saksham Agrawal<small class="brick-hint">Point the wand at the wall</small></figcaption>
     </figure>
