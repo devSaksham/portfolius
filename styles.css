@@ -263,7 +263,7 @@ html.js[data-dir="up"] .rv:not(.in) { transform: translateY(-14px); }
 .js .rv.in { opacity: 1; transform: none; }
 
 /* ===== What I do ===== */
-.band .eyebrow { text-align: center; }
+.band .band-title { text-align: center; font: 600 clamp(2rem, 5vw, 3.4rem)/1.08 var(--display); color: #f4efe2; margin: 0 0 .8rem; }
 .plaques { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
 .plaques li { padding: 28px 24px; border-radius: 4px; background: rgba(8,34,44,.82); border: 1px solid rgba(201,164,92,.22); transition: border-color .4s, transform .4s; }
 .plaques li:hover { border-color: rgba(236,211,154,.6); transform: translateY(-3px); }
