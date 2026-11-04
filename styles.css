@@ -781,8 +781,9 @@ html.intro .topbar, html.intro .walker { animation: copy-in .8s ease-out 1.4s bo
 @keyframes strand { to { stroke-dashoffset: -52; } }
 @keyframes flick { to { transform: rotate(12deg); } }
 .cast-flash { position: fixed; inset: 0; z-index: 84; pointer-events: none; opacity: 0; background: radial-gradient(ellipse at 50% 70%, rgba(220,240,255,1), rgba(170,215,255,.6) 45%, rgba(170,215,255,.25)); }
-.rider { position: absolute; left: 0; top: 0; width: 90px; height: 60px; pointer-events: none; will-change: transform; opacity: 0; transition: opacity .6s; }
+.rider { position: absolute; left: 0; top: 0; width: 110px; height: 83px; pointer-events: none; will-change: transform; opacity: 0; transition: opacity .6s; }
 .rider.on { opacity: 1; }
+.rider::before { content: ""; position: absolute; right: 78%; top: 62%; width: 70px; height: 8px; border-radius: 8px; background: linear-gradient(90deg, transparent, rgba(236,211,154,.75)); }
 .rider-svg { width: 100%; height: 100%; overflow: visible; animation: bob 2.4s ease-in-out infinite; filter: drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
 @keyframes bob { 50% { translate: 0 -5px; } }
 
