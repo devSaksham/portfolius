@@ -106,6 +106,19 @@ new ResizeObserver(() => about.style.setProperty('--scroll-h', $('.scroll-body',
 const envObs = new IntersectionObserver(([e]) => envelope.classList.toggle('open', e.isIntersecting), { rootMargin: '0px 0px -62% 0px' });
 reduce ? envelope.classList.add('open') : envObs.observe(envelope);
 
+/* ---------- Project cards: the Room adjusts to however many cards it holds ---------- */
+const cards = $$('.artefacts > li');
+const WORDS = 'zero one two three four five six seven eight nine ten eleven twelve'.split(' ');
+const ROMAN = ',I,II,III,IV,V,VI,VII,VIII,IX,X,XI,XII'.split(',');
+$('[data-project-count]').textContent = WORDS[cards.length] || cards.length;
+const lsOut = $('#room-of-requirement .kicker .out'); // the terminal label is optional
+if (lsOut) lsOut.innerHTML = cards.map(c => c.dataset.slug).join('&nbsp; ');
+cards.forEach((c, i) => {
+  const d = $('#' + $('[data-dossier]', c).dataset.dossier);
+  $('[data-no]', d).textContent = String(i + 1).padStart(2, '0');
+  $('[data-roman]', d).textContent = ROMAN[i + 1] || i + 1;
+});
+
 /* ---------- Project cards: Daily Prophet affordances, stack as code ---------- */
 $$('.artefact').forEach(a => a.insertAdjacentHTML('beforeend', '<span class="np-peek" aria-hidden="true"></span>'));
 const longDate = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });

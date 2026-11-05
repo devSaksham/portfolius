@@ -109,6 +109,8 @@ main > section:not(.hero) { isolation: isolate; overflow-x: clip; background: va
 #owl-post { --tint: radial-gradient(ellipse 60% 70% at 20% 50%, rgba(150,210,255,.06), transparent 70%); }
 /* nothing animates in a section that is off screen (rain, cues, card pieces, the owl's blink...) */
 main > section:not(.onscreen), main > section:not(.onscreen) *, main > section:not(.onscreen) *::before, main > section:not(.onscreen) *::after { animation-play-state: paused !important; }
+/* ...except an open Daily Prophet, which can live inside a card */
+main > section dialog[open], main > section dialog[open] * { animation-play-state: running !important; }
 
 /* ===== Top bar ===== */
 .topbar {
@@ -342,6 +344,26 @@ html.js[data-dir="up"] .rv:not(.in) { transform: translateY(-14px); }
 .open-cue::before { content: ""; position: absolute; inset: 0; border-radius: 6px; }
 .artefact .primary { position: relative; z-index: 1; padding: 8px 0; font: 600 .8rem/1 var(--display); letter-spacing: .14em; text-transform: uppercase; color: var(--gold-hi); text-decoration: none; border-bottom: 1px solid var(--gold); }
 .artefact .primary:hover { color: #fff; }
+
+/* CausalFunnel: a click heatmap */
+.heat { position: relative; display: grid; grid-template-columns: repeat(14, 1fr); gap: 6px 5px; align-content: center; }
+.heat i { aspect-ratio: 1; border-radius: 50%; background: var(--gold-hi); }
+.heat i.hot { box-shadow: 0 0 8px rgba(255,190,90,.9); background: #ffd27f; }
+.heat b { position: absolute; width: 12px; height: 12px; margin: -6px 0 0 -6px; border-radius: 50%; border: 1px solid #fff2cf; animation: ripple 2.4s ease-out infinite; }
+@keyframes ripple { from { transform: scale(.4); opacity: 1; } to { transform: scale(3.2); opacity: 0; } }
+.heat span, .bars span { position: absolute; right: 0; bottom: -16px; font: .62rem/1 var(--mono); color: var(--stone); letter-spacing: .06em; }
+/* DealerOS: monthly demand bars, the festive month, next month's forecast */
+.bars { position: relative; display: flex; align-items: flex-end; gap: 5px; }
+.bars i { flex: 1; border-radius: 2px 2px 0 0; background: linear-gradient(rgba(236,211,154,.7), rgba(201,164,92,.25)); transform-origin: 50% 100%; transition: transform .5s ease; }
+.bars i.fest { background: linear-gradient(#ffd27f, #c9a45c); box-shadow: 0 0 10px rgba(255,190,90,.5); }
+.bars i.fc { background: none; border: 1px dashed var(--gold-hi); border-bottom: 0; }
+.artefact:hover .bars i, .artefact:focus-within .bars i { transform: scaleY(1.06); }
+/* this portfolio: the castle, two windows twinkling */
+.minic { width: 100%; }
+.minic use { fill: rgba(201,164,92,.55); }
+.minic .tw { fill: #ffd27f; animation: twinkle-win 2.8s ease-in-out infinite; }
+.minic .t2 { animation-delay: -1.4s; }
+@keyframes twinkle-win { 50% { opacity: .25; } }
 
 /* Dossiers */
 dialog { padding: 0; border: 0; }
