@@ -175,3 +175,14 @@ renderHouse();
 renderYears();
 lesson = firstOpen(0);
 renderLesson();
+
+/* Opened over the castle (as a frame): the way back just closes the frame, so the page and its music carry on */
+if (/[?&]embed\b/.test(location.search) && window.parent !== window) {
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="./"]');
+    if (!a || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    e.preventDefault();
+    try { window.parent.closeSpellClass(); } catch { window.top.location.href = a.href; }
+  });
+  addEventListener('keydown', e => { if (e.key === 'Escape' && !e.target.closest('input')) { try { window.parent.closeSpellClass(); } catch {} } });
+}

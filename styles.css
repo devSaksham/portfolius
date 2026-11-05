@@ -648,7 +648,7 @@ html:not(.js) .env-seal, .envelope.open .env-seal { pointer-events: none; }
   .post-actions .btn { flex: 1 1 100%; }
 }
 
-/* ===== Footer: closing scene, a small castle on a full-width horizon, house banners ===== */
+/* ===== Footer: closing scene, a small castle on a full-width horizon, the classic columns ===== */
 .foot { position: relative; z-index: 1; overflow: hidden; color: var(--stone); background: linear-gradient(180deg, transparent, #061d26 22%, #04141b 70%); }
 .foot-sky { position: absolute; inset: 0 0 auto; height: 70%; pointer-events: none; }
 .foot-sky .stars { position: absolute; inset: 0; opacity: .8;
@@ -681,35 +681,8 @@ html:not(.js) .env-seal, .envelope.open .env-seal { pointer-events: none; }
 .foot.onscreen .foot-castle .win.f { animation: window-glow 5s ease-in-out infinite alternate; }
 @keyframes window-glow { to { opacity: .35; } }
 .foot-ground { position: relative; background: #03131a; padding: 8px var(--gutter) 30px; }
-.foot .v { display: none; }
-.foot[data-footer="banners"] .v-banners { display: grid; }
-.foot[data-footer="classic"] .v-classic { display: grid; }
-
-/* house banners: hanging cloth, swallow-tailed, swaying a little */
-.v-banners { max-width: 1080px; margin: 0 auto; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(14px, 2.4vw, 30px); padding: 6px 0 34px; }
-.hbanner { position: relative; transform-origin: 50% 0; }
-.foot.onscreen .hbanner { animation: sway 5s ease-in-out infinite alternate; }
-.hbanner:nth-child(2) { animation-delay: -1.3s; } .hbanner:nth-child(3) { animation-delay: -2.6s; } .hbanner:nth-child(4) { animation-delay: -3.9s; }
-@keyframes sway { from { rotate: -.8deg; } to { rotate: .8deg; } }
-.hb-rod { display: block; position: relative; height: 10px; margin: 0 -10px; border-radius: 5px; background: linear-gradient(#e9cf8d, #8a6a30); box-shadow: 0 4px 8px rgba(0,0,0,.5); z-index: 1; }
-.hb-rod::before, .hb-rod::after { content: ""; position: absolute; top: -4px; width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #fff1c4, #b8913f 60%, #6b4f20); }
-.hb-rod::before { left: -10px; } .hb-rod::after { right: -10px; }
-.hb-cloth { --a: #7a1f1a; --b: #a3322a; --t: #d9a431; --ink: #fff4dc;
-  margin: -2px 6px 0; padding: 22px 18px 58px; text-align: center; color: var(--ink);
-  background: linear-gradient(90deg, rgba(0,0,0,.22), transparent 18%, transparent 82%, rgba(0,0,0,.22)), linear-gradient(180deg, var(--b), var(--a));
-  box-shadow: inset 0 0 0 3px var(--t), inset 0 0 0 6px rgba(0,0,0,.18), 0 18px 30px -12px rgba(0,0,0,.8);
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 34px), 0 100%); }
-.hb-house { margin: 0 0 6px; font: .78rem/1 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--t); }
-.hb-cloth h2 { margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid color-mix(in srgb, var(--t) 60%, transparent); font: 600 1.2rem/1.2 var(--display); letter-spacing: .04em; color: var(--ink); }
-.hb-cloth li + li { margin-top: 2px; }
-.hb-cloth a { display: inline-flex; align-items: center; min-height: 40px; padding: 0 6px; color: var(--ink); text-decoration: none; font-size: 1.08rem; border-bottom: 1px solid transparent; transition: border-color .2s; }
-.hb-cloth a:hover, .hb-cloth a:focus-visible { border-bottom-color: var(--t); }
-.hbanner.ravenclaw .hb-cloth { --a: #1a2f63; --b: #2b4a92; --t: #b08a5a; }
-.hbanner.hufflepuff .hb-cloth { --a: #c99a1e; --b: #e8bd3c; --t: #2a2118; --ink: #1d1408; }
-.hbanner.slytherin .hb-cloth { --a: #123f28; --b: #1f6b40; --t: #c7cfd3; }
-
-/* classic: the earlier three columns */
-.v-classic { max-width: 1080px; margin: 0 auto; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; padding: 20px 0 30px; }
+/* the classic three columns */
+.v-classic { display: grid; max-width: 1080px; margin: 0 auto; grid-template-columns: 1.4fr 1fr 1fr; gap: 40px; padding: 20px 0 30px; }
 .foot-brand .mono { display: inline-block; margin-bottom: 14px; }
 .foot-name { margin: 0; font: 500 1.35rem/1.2 var(--display); color: #f4efe2; letter-spacing: .04em; }
 .foot-role { margin: 4px 0 14px; font: .9rem/1.4 var(--mono); color: var(--gold-hi); }
@@ -728,7 +701,6 @@ html:not(.js) .env-seal, .envelope.open .env-seal { pointer-events: none; }
 .foot-toggle { width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; background: none; color: var(--stone); opacity: .35; font-size: .9rem; transition: opacity .2s, color .2s; }
 .foot-toggle:hover, .foot-toggle:focus-visible { opacity: 1; color: var(--gold-hi); }
 
-@media (max-width: 860px) { .v-banners { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 26px; } }
 @media (max-width: 760px) {
   .foot-moon { width: 60px; height: 60px; top: 50px; right: 8%; }
   .v-classic { grid-template-columns: 1fr 1fr; gap: 28px 20px; }
@@ -939,3 +911,88 @@ html.intro .topbar, html.intro .walker { animation: copy-in .8s ease-out 1.4s bo
 .sc-progress .now button { box-shadow: 0 0 0 3px rgba(236,211,154,.35); }
 .sc-note { text-align: center; font: .84rem/1.4 var(--mono); color: var(--stone); }
 @media (max-width: 560px) { .sc-tools [data-act="next"] { margin-left: 0; } .sc-term .btn { padding: 10px 14px; } }
+
+/* ===== Castle music: the button in the top bar (four little bars that sway while it plays) ===== */
+.music-btn { position: relative; display: inline-grid; place-items: center; width: 36px; height: 36px; padding: 0; border-radius: 6px; cursor: pointer;
+  border: 1px solid rgba(201,164,92,.4); background: rgba(4,20,27,.6); transition: border-color .3s, box-shadow .3s; }
+.music-btn:hover, .music-btn:focus-visible { border-color: var(--gold-hi); }
+.topbar .music-btn { order: 4; margin-left: .5rem; }
+.sc-page .topbar .music-btn { margin-left: 1rem; }
+@media (max-width: 860px) { .topbar .music-btn { order: 0; margin-left: 0; } }
+/* paused: a music note, so it reads as a music button at a glance; playing: the swaying bars */
+.music-btn .note, .music-btn .eq { grid-area: 1 / 1; transition: opacity .35s ease, transform .35s ease; }
+.music-btn .note { width: 18px; height: 18px; color: var(--gold-hi); }
+.music-btn[aria-pressed="true"] .note { opacity: 0; transform: scale(.6); }
+.music-btn[aria-pressed="false"] .eq { opacity: 0; transform: scale(.6); }
+.eq { display: flex; align-items: flex-end; gap: 3px; height: 14px; }
+.eq i { width: 2px; height: 100%; border-radius: 1px; background: var(--gold-hi); opacity: .55; transform-origin: 50% 100%; transform: scaleY(.22); transition: transform .5s ease, opacity .5s; }
+.music-btn[aria-pressed="true"] .eq i { opacity: 1; animation: eq 1.2s ease-in-out infinite alternate; }
+.music-btn[aria-pressed="true"] .eq i:nth-child(2) { animation-duration: .9s; animation-delay: -.4s; }
+.music-btn[aria-pressed="true"] .eq i:nth-child(3) { animation-duration: 1.4s; animation-delay: -.8s; }
+.music-btn[aria-pressed="true"] .eq i:nth-child(4) { animation-duration: 1s; animation-delay: -.2s; }
+.music-btn.waiting .eq i { animation-play-state: paused; } /* on, but waiting for the file or for a tap */
+.music-btn[aria-pressed="true"] { box-shadow: 0 0 14px rgba(241,215,154,.25); }
+@keyframes eq { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
+/* the one-time note in the open way in */
+.music-nudge { position: absolute; top: calc(100% + 10px); right: -6px; padding: 8px 12px; border-radius: 6px; white-space: nowrap; pointer-events: none;
+  font: italic 1rem/1 var(--fell); color: var(--gold-hi); background: rgba(4,20,27,.92); border: 1px solid rgba(201,164,92,.45); box-shadow: 0 10px 30px rgba(0,0,0,.5);
+  opacity: 0; transform: translateY(-4px); transition: opacity .6s ease, transform .6s ease; }
+.music-nudge::before { content: ""; position: absolute; top: -5px; right: 18px; width: 8px; height: 8px; rotate: 45deg; background: inherit; border: inherit; border-width: 1px 0 0 1px; }
+.music-nudge.show { opacity: 1; transform: none; }
+.music-btn:has(.music-nudge.show) { border-color: var(--gold-hi); }
+
+/* ===== Entrance screen (the gate way in) ===== */
+.gate { display: none; }
+html.gated { overflow: hidden; }
+html.gated .gate { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; padding: var(--gutter); text-align: center;
+  background: radial-gradient(ellipse at 50% 38%, #0b3442, #04141b 62%, #020b10); }
+.gate-sky { position: absolute; inset: 0; pointer-events: none; }
+.gate-sky .stars { inset: 0; }
+.gate-sky .s2 { background-position: 200px 120px; opacity: .3; animation-delay: -3s; }
+.gate-card { position: relative; display: grid; justify-items: center; }
+.gate-kicker { margin: 0 0 12px; font: .9rem/1 var(--mono); letter-spacing: .06em; color: #8fc3d2; animation: copy-in 1s ease-out .2s both; }
+.gate-title { margin: 0 0 34px; font: 400 clamp(2.4rem, 7vw, 4.4rem)/1 "Harry P", var(--display); letter-spacing: .02em; color: transparent;
+  background: linear-gradient(180deg, #ffffff 0%, #e6edf0 30%, #9fb0b8 48%, #5d6f78 52%, #c9d4d9 66%, #f4f7f8 82%, #a9b8bf 100%); -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 2px 0 rgba(10,20,26,.9)) drop-shadow(0 0 24px rgba(var(--glow), .3)); animation: copy-in 1.2s ease-out .35s both; }
+.gate-seal { position: relative; width: 112px; height: 112px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; background: none; filter: drop-shadow(0 10px 14px rgba(0,0,0,.55)); animation: copy-in 1s ease-out .6s both; }
+.gate-seal::before { content: ""; position: absolute; inset: -18px; border-radius: 50%; background: radial-gradient(circle, rgba(241,215,154,.28), transparent 68%); animation: seal-breathe 3.2s ease-in-out infinite alternate; }
+@keyframes seal-breathe { from { opacity: .35; transform: scale(.92); } to { opacity: 1; transform: scale(1.05); } }
+.gate-seal i { position: absolute; inset: 0; border-radius: 50%; display: grid; place-items: center; font: 700 1.7rem/1 var(--deco); font-style: normal; color: #f0c9b0;
+  background: radial-gradient(circle at 40% 35%, #b43a4b, #7a1b29 60%, #4f0f1a); box-shadow: inset 0 0 0 8px rgba(0,0,0,.18), inset 0 0 0 9px rgba(240,201,176,.12);
+  transition: transform .7s cubic-bezier(.3,.6,.2,1), opacity .6s ease .2s; }
+.gate-seal i:first-child { clip-path: polygon(0 0, 52% 0, 46% 50%, 54% 100%, 0 100%); }
+.gate-seal i:last-child { clip-path: polygon(52% 0, 100% 0, 100% 100%, 54% 100%, 46% 50%); }
+.gate-seal:hover i, .gate-seal:focus-visible i { transform: scale(1.04); }
+.gate-seal:focus-visible { outline: 2px solid var(--gold-hi); outline-offset: 10px; }
+.gate-hint { margin: 22px 0 6px; font: italic 1.15rem/1.3 var(--fell); color: var(--gold-hi); animation: copy-in 1s ease-out .8s both; }
+.gate-quiet { min-height: 44px; padding: 0 12px; border: 0; cursor: pointer; background: none; font: 1rem/1 var(--body); color: var(--text-soft);
+  text-decoration: underline; text-underline-offset: 4px; text-decoration-color: rgba(201,164,92,.4); animation: copy-in 1s ease-out .95s both; }
+.gate-quiet:hover, .gate-quiet:focus-visible { color: #f4efe2; }
+/* leaving: the seal splits, the card drifts towards you and the night lifts */
+.gate.leaving { pointer-events: none; animation: gate-out .9s cubic-bezier(.6,0,.3,1) .25s forwards; }
+.gate.leaving .gate-card { animation: gate-card-out 1s cubic-bezier(.5,0,.3,1) .15s forwards; }
+.gate.broken .gate-seal i:first-child { transform: translate(-26px, 10px) rotate(-28deg); opacity: 0; }
+.gate.broken .gate-seal i:last-child { transform: translate(26px, 10px) rotate(28deg); opacity: 0; }
+@keyframes gate-out { to { opacity: 0; } }
+@keyframes gate-card-out { to { opacity: 0; transform: scale(1.08); } }
+
+/* ===== Spell Class over the castle ===== */
+.sc-overlay { position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; background: #04141b; }
+.sc-overlay::backdrop { background: transparent; }
+.sc-overlay[open] { animation: sc-in .4s cubic-bezier(.2,.7,.2,1) both; }
+.sc-overlay.leaving { animation: sc-out .28s ease-in both; }
+@keyframes sc-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes sc-out { to { opacity: 0; transform: translateY(10px); } }
+.sc-overlay iframe { display: block; width: 100%; height: 100%; border: 0; }
+html.sc-open { overflow: hidden; }
+html.sc-open body > :not(.sc-overlay) { visibility: hidden; }
+
+/* page to page (where supported): a soft cross-fade instead of a blank flash */
+@view-transition { navigation: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gate *, .gate.leaving, .gate-seal::before { animation: none !important; }
+}
+@media (scripting: none) { html.gated { overflow: auto; } html.gated .gate { display: none; } }
+.topbar:has(.music-nudge.show) { z-index: 52; } /* the note sits above the footsteps label */
+@media (max-width: 860px) { .music-nudge { right: 50%%; translate: 50%% 0; } .music-nudge::before { right: calc(50%% - 4px); } }

@@ -11,17 +11,48 @@ const keepVh = () => root.style.setProperty('--vh', innerHeight + 'px');
 keepVh();
 
 /* ---------- Cinematic opening (once per visit; any input skips it) ---------- */
-let intro = false;
-try {
-  if (!reduce && !sessionStorage.getItem('seen-intro')) {
-    intro = true;
+const music = window.castleMusic;
+function startIntro() {
+  try {
+    if (reduce || sessionStorage.getItem('seen-intro')) return;
     root.classList.add('intro');
     sessionStorage.setItem('seen-intro', '1');
     const end = () => root.classList.remove('intro');
     setTimeout(end, 2400);
     ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach(ev => addEventListener(ev, end, { once: true, passive: true }));
-  }
-} catch {}
+  } catch {}
+}
+
+/* ---------- Two ways into the castle (the ✦ in the footer switches between them) ----------
+   gate: an entrance screen first; break the seal to enter with music, or enter in silence.
+   open: straight in, with a small "Play the castle's music?" note by the music button. */
+const gate = $('#gate');
+const entry = () => { try { return localStorage.getItem('entry') || 'open'; } catch { return 'open'; } };
+function showGate() {
+  root.classList.add('gated');
+  music.prefetch(); // ready by the time the seal breaks
+  $('.gate-seal', gate).focus({ preventScroll: true });
+}
+function enter(withMusic) {
+  if (!root.classList.contains('gated') || gate.classList.contains('leaving')) return;
+  try { sessionStorage.setItem('entered', '1'); } catch {}
+  if (withMusic) music.play(3); // inside the tap, so the browser lets it sound
+  else if (music.want) music.pause();
+  gate.classList.add('leaving', withMusic ? 'broken' : 'quiet');
+  setTimeout(() => { root.classList.remove('gated'); gate.classList.remove('leaving', 'broken', 'quiet'); startIntro(); }, reduce ? 0 : 1100);
+}
+gate.addEventListener('click', e => { const b = e.target.closest('[data-enter]'); if (b) enter(b.dataset.enter === 'music'); });
+gate.addEventListener('keydown', e => { if (e.key === 'Escape') enter(false); });
+function nudge() {
+  const n = $('.music-nudge');
+  try { if (music.want || sessionStorage.getItem('nudged')) return; sessionStorage.setItem('nudged', '1'); } catch {}
+  n.classList.add('show');
+  const hide = () => n.classList.remove('show');
+  setTimeout(hide, 7000);
+  music.subscribe(on => on && hide());
+}
+if (root.classList.contains('gated')) showGate();
+else { startIntro(); setTimeout(nudge, reduce ? 800 : 3200); }
 
 /* ---------- Sparkles (owl, hat, rocket, patronus) ---------- */
 const cv = $('#sparkles'), ctx = cv.getContext('2d');
@@ -804,7 +835,7 @@ const COMMANDS = [
   ['Go to Certificates', 'cd trophy-room', go('trophy-room')],
   ['Go to Contact', 'cd owl-post', go('owl-post')],
   ['Back to the Great Hall', 'cd ~', go('great-hall')],
-  ['Spell Class', 'learn commands as spells', () => (location.href = 'spell-class')],
+  ['Spell Class', 'learn commands as spells', () => openSpellClass()],
   ['Accio resume', 'opens on Google Drive', open('https://drive.google.com/file/d/1hk_MAIPaLUcRsX-Tg9IukpXzCxVgiDun/view?usp=sharing')],
   ['Copy email', 'reach.saksham.agrawal@gmail.com', () => copyEmail()],
   ['Sort me', 'sorting hat quiz', () => { go('sorting-hat')(); setTimeout(() => $('[data-hat="me"]').click(), 600); }],
@@ -842,15 +873,20 @@ addEventListener('keydown', e => {
   if (((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') || (e.key === '/' && !typing && !palette.open)) { e.preventDefault(); openPalette(); }
 });
 
-/* ---------- Footer: a small castle on the horizon, then the classic columns (or house banners) ---------- */
+/* ---------- Footer: a small castle on the horizon, then the classic columns ---------- */
 const footer = $('.foot'), footCastle = $('.foot-castle');
 footCastle.append(castleCopy());
 new IntersectionObserver(([e]) => footer.classList.toggle('onscreen', e.isIntersecting)).observe(footer);
 $$('[data-top]').forEach(b => b.addEventListener('click', e => { e.preventDefault(); scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); }));
-// a quiet toggle in the footer bar flips between the classic columns and the house banners
-const setFooter = v => { footer.dataset.footer = v; try { localStorage.setItem('footer-style', v); } catch {} };
-try { if (localStorage.getItem('footer-style') === 'banners') footer.dataset.footer = 'banners'; } catch {}
-$('.foot-toggle').addEventListener('click', () => setFooter(footer.dataset.footer === 'classic' ? 'banners' : 'classic'));
+// a quiet toggle in the footer bar switches the way in; turning the entrance screen on shows it straight away
+const footToggle = $('.foot-toggle');
+footToggle.setAttribute('aria-pressed', entry() === 'gate');
+footToggle.addEventListener('click', () => {
+  const v = entry() === 'gate' ? 'open' : 'gate';
+  try { localStorage.setItem('entry', v); sessionStorage.removeItem('nudged'); } catch {}
+  footToggle.setAttribute('aria-pressed', v === 'gate');
+  if (v === 'gate') showGate(); else nudge();
+});
 
 /* ---------- Patronus: a silver doe is cast out of the wand, gallops off one edge, comes back the other way and runs out past the far edge ---------- */
 let patronusArmed = true, lastPatronus = -Infinity;
@@ -1058,3 +1094,44 @@ $('[data-copy]').addEventListener('click', copyEmail);
 
 // after the first paint: the world art and walker read layout, so let the page show first
 requestAnimationFrame(() => setTimeout(() => { buildWorld(); onWalk(); }));
+
+/* ---------- Spell Class opens over the castle, in this same page ----------
+   A normal link would load a new page and cut the music. Like a single-page app, the game is shown in a
+   full-screen frame on top instead: the music plays on, and closing it puts you back exactly where you were.
+   The address gets #spell-class, so the browser's Back button closes it. */
+let scDlg, scFrame;
+function prepSpellClass() {
+  if (scDlg) return;
+  scDlg = Object.assign(document.createElement('dialog'), { className: 'sc-overlay' });
+  scDlg.setAttribute('aria-label', 'Spell Class');
+  scFrame = Object.assign(document.createElement('iframe'), { src: 'spell-class.html?embed', title: 'Spell Class' });
+  scDlg.append(scFrame);
+  document.body.append(scDlg);
+  scDlg.addEventListener('cancel', e => { e.preventDefault(); closeSpellClass(); });
+}
+function openSpellClass(push = true) {
+  prepSpellClass();
+  if (scDlg.open) return;
+  scDlg.classList.remove('leaving');
+  scDlg.showModal();
+  root.classList.add('sc-open'); // the castle behind stops painting while the game is up
+  if (push) history.pushState({ spellClass: true }, '', '#spell-class'); // a hash, not a path: CausalFunnel counts path changes as page views
+  scFrame.addEventListener('load', () => scFrame.contentWindow.focus(), { once: true });
+  try { scFrame.contentWindow.focus(); } catch {}
+}
+function closeSpellClass(fromHistory) {
+  if (!scDlg?.open || scDlg.classList.contains('leaving')) return;
+  if (!fromHistory && history.state?.spellClass) return history.back(); // popstate below finishes the close
+  root.classList.remove('sc-open');
+  scDlg.classList.add('leaving');
+  setTimeout(() => { scDlg.close(); scDlg.classList.remove('leaving'); }, reduce ? 0 : 280);
+}
+addEventListener('popstate', e => { if (e.state?.spellClass) openSpellClass(false); else closeSpellClass(true); });
+document.addEventListener('click', e => {
+  const a = e.target.closest('a[href="spell-class"]');
+  if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button) return;
+  e.preventDefault();
+  openSpellClass();
+});
+// load it early the moment someone heads for a Spell Class link, so it opens instantly
+['pointerover', 'focusin', 'touchstart'].forEach(ev => document.addEventListener(ev, e => { if (e.target.closest?.('a[href="spell-class"]')) prepSpellClass(); }, { capture: true, passive: true }));
