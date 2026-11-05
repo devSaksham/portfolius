@@ -832,7 +832,7 @@ const COMMANDS = [
   ['Go to Experience', 'cd journey', go('journey')],
   ['Go to Skills', 'cd spellbook', go('spellbook')],
   ['Go to About', 'cd records', go('records')],
-  ['Go to Certificates', 'cd trophy-room', go('trophy-room')],
+  // ['Go to Certificates', 'cd trophy-room', go('trophy-room')], // back when the Trophy Room is shown
   ['Go to Contact', 'cd owl-post', go('owl-post')],
   ['Back to the Great Hall', 'cd ~', go('great-hall')],
   ['Spell Class', 'learn commands as spells', () => openSpellClass()],
