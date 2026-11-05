@@ -861,6 +861,21 @@ html.intro .topbar, html.intro .walker { animation: copy-in .8s ease-out 1.4s bo
   .js .rv { opacity: 1; transform: none; }
   }
 
+/* ===== Static copies (scripting: none): the CausalFunnel heatmap snapshot keeps html.js but runs no JS, so show every reveal finished ===== */
+@media (scripting: none) {
+  .hero { min-height: var(--vh, 100svh); } /* --vh: the visitor's real screen height, set by main.js */
+  .hero-copy { padding-top: clamp(110px, calc(var(--vh, 100vh) * .2), 200px); }
+  .js .rv { opacity: 1; transform: none; }
+  .js .kicker[data-cmd] .out { opacity: 1; }
+  .js .scroll:not(.in) .scroll-body { clip-path: none; }
+  .js .scroll:not(.in) .rod:last-child { transform: none; }
+  .js .envelope:not(.open) .env-flap { transform: rotateX(180deg); z-index: 0; }
+  .js .envelope:not(.open) .env .letter { transform: none; }
+  .js .envelope:not(.open) .env-seal i { opacity: 0; }
+  .js .ledger-chart .line { stroke-dashoffset: 0; }
+  .orb .bars span::after { width: var(--v); }
+}
+
 /* ===== Spell Class (spell-class.html) and its teaser in the Spellbook ===== */
 .sc-teaser { display: block; max-width: 1180px; margin: 22px auto 0; padding: 22px 26px; border-radius: 6px; text-decoration: none; color: var(--text);
   background: linear-gradient(100deg, rgba(107,29,42,.55), rgba(8,30,39,.9) 60%); border: 1px solid rgba(201,164,92,.45); transition: border-color .3s, transform .3s; }

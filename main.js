@@ -6,6 +6,9 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const root = document.documentElement;
 let W = innerWidth, H = innerHeight;
+// The heatmap snapshot is drawn in a frame as tall as the whole page, where 100svh would be the page height: keep the real one
+const keepVh = () => root.style.setProperty('--vh', innerHeight + 'px');
+keepVh();
 
 /* ---------- Cinematic opening (once per visit; any input skips it) ---------- */
 let intro = false;
@@ -512,7 +515,7 @@ addEventListener('scroll', () => {
     if (px > -999) placeLamps();
   });
 }, { passive: true });
-addEventListener('resize', () => { W = innerWidth; H = innerHeight; resizeCanvas(); scheduleBuild(); });
+addEventListener('resize', () => { W = innerWidth; H = innerHeight; keepVh(); resizeCanvas(); scheduleBuild(); });
 
 /* ---------- Sorting Hat: a little quiz for the visitor, or lines about Saksham ---------- */
 const sayEl = $('#hat-say'), quizEl = $('.hat-q'), answersEl = $('.answers', quizEl), bannerEl = $('.banner span');
