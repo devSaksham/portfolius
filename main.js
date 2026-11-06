@@ -441,14 +441,14 @@ async function owlErrand() {
     appearAt(target); // back on its perch, wherever you have scrolled to
   }
 }
-// "Send an owl" simply takes you to the form
-$('[data-send-owl]').addEventListener('click', e => {
+// "Send an owl" (top bar and Owl Post) simply takes you to the form
+$$('[data-send-owl]').forEach(a => a.addEventListener('click', e => {
   const form = $('#howler');
   if (reduce) return; // plain anchor jump
   e.preventDefault();
   form.scrollIntoView({ behavior: 'smooth', block: 'center' });
   setTimeout(() => $('input', form).focus({ preventScroll: true }), 500);
-});
+}));
 
 /* ---------- Write a Howler: the contact form, delivered to my inbox by Web3Forms ---------- */
 // Public form key from web3forms.com (made for this email address; safe to ship in the page).

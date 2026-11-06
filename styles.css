@@ -919,6 +919,14 @@ html.intro .topbar, html.intro .walker { animation: copy-in .8s ease-out 1.4s bo
 .topbar .music-btn { order: 4; margin-left: .5rem; }
 .sc-page .topbar .music-btn { margin-left: 1rem; }
 @media (max-width: 860px) { .topbar .music-btn { order: 0; margin-left: 0; } }
+/* the always-there call to action: the last thing in the top bar on desktop, beside Menu on phones */
+.top-owl { order: 5; margin-left: .5rem; min-height: 36px; padding: 0 .95rem; font-size: .74rem; white-space: nowrap; }
+@media (max-width: 860px) { .top-owl { order: 0; margin-left: 0; min-height: 44px; } }
+@media (min-width: 861px) and (max-width: 1080px) { /* small laptops: tighten the links so everything stays on one line (the ⌘K keys still work) */
+  .topbar { gap: .8rem; } .topbar .cmdk { display: none; }
+  .plainnav { gap: .9rem; } .plainnav a { letter-spacing: .08em; white-space: nowrap; }
+}
+@media (max-width: 560px) { .topbar { gap: .6rem; } .topbar .cmdk { display: none; } .menu-btn { margin-left: 0; } } /* ⌘K is a keyboard shortcut: phones need the room */
 /* paused: a music note, so it reads as a music button at a glance; playing: the swaying bars */
 .music-btn .note, .music-btn .eq { grid-area: 1 / 1; transition: opacity .35s ease, transform .35s ease; }
 .music-btn .note { width: 18px; height: 18px; color: var(--gold-hi); }
