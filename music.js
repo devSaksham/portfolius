@@ -2,9 +2,9 @@
    Browsers only allow sound after a tap or key press, so it never starts by itself on a first visit.
    Web Audio (not an <audio> tag) because only a decoded buffer loops with no gap. The first play starts at the
    very beginning, so it opens slow and quiet and builds; after that it loops from 5s, where the file's last
-   seconds (the end fading out over the opening fading in) hand over seamlessly. It sits low under the page on
-   purpose: background, never the main thing. The file is fetched only when someone shows interest (hovers the button, or the
-   entrance screen is up), so nobody else downloads a byte of it.
+   seconds (the end fading out over the opening fading in) hand over seamlessly. It sits under the page on
+   purpose: background, never the main thing. The file is downloaded and decoded once the page has settled, so the
+   first tap plays at once; on data saver or 2G it waits until someone reaches for the button.
    Inside the Spell Class overlay this page is an iframe: it borrows the castle page's player, so the music
    simply carries on. On a real page change it picks up where it stopped. */
 (() => {
@@ -32,7 +32,7 @@
 
   function player() {
     const TRACK = { src: 'assets/music-p.mp3', loopStart: 5, loopEnd: 125 }; // seconds in the file
-    const VOL = 0.22; // quiet on purpose
+    const VOL = 0.7; // the file peaks at -4.5 dB, so this has headroom
     if (navigator.audioSession) navigator.audioSession.type = 'playback'; // iPhone: play even with the silent switch on, like any music app
     let ctx, gain, buf, loading, src = null, startedAt = 0, offset = 0;
     const subs = new Set();
@@ -55,10 +55,11 @@
       const g = gain.gain, t = ctx.currentTime;
       g.cancelScheduledValues(t); g.setValueAtTime(g.value, t); g.linearRampToValueAtTime(to, t + sec);
     };
-    me.prefetch = () => {
-      if (!ctx) makeCtx();
-      return (loading ||= fetch(TRACK.src).then(r => r.arrayBuffer()).then(a => new Promise((ok, no) => ctx.decodeAudioData(a, ok, no))).then(b => (buf = b)));
-    };
+    // decoded on an offline context: a real one before any tap only earns an autoplay warning. A failed load can be retried by the next tap.
+    me.prefetch = () => (loading ||= fetch(TRACK.src).then(r => r.arrayBuffer())
+      .then(a => new OfflineAudioContext(2, 1, 44100).decodeAudioData(a))
+      .then(b => (buf = b))
+      .catch(e => { loading = null; throw e; }));
 
     async function sound(fade) {
       if (!ctx) makeCtx();
@@ -92,7 +93,7 @@
 
     me.play = (fade = 2.5) => { me.want = true; emit(); save(); return sound(fade); };
     me.pause = (fade = 0.8) => { me.want = false; hush(fade); emit(); save(); };
-    me.toggle = () => (me.want ? me.pause() : me.play(1.5));
+    me.toggle = () => (me.want ? me.pause() : me.play(0.4)); // a long fade over the quiet opening would sound like a delay
     me.subscribe = f => subs.add(f);
     me.unsubscribe = f => subs.delete(f);
 
@@ -104,6 +105,14 @@
 
     // coming from another page of the site with music on: carry on from the same bar
     if (saved?.want) { me.want = true; offset = saved.pos || 0; sound(1.2); }
+
+    // get it ready before anyone taps, without competing with the page itself
+    const net = navigator.connection;
+    if (!net?.saveData && !/2g/.test(net?.effectiveType)) {
+      const load = () => me.prefetch().catch(() => {});
+      const idle = () => (window.requestIdleCallback ? requestIdleCallback(load, { timeout: 4000 }) : setTimeout(load, 1500));
+      if (document.readyState === 'complete') idle(); else addEventListener('load', idle, { once: true });
+    }
     return me;
   }
 })();
