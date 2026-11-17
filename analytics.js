@@ -27,11 +27,10 @@
       });
     }
 
+    if (target.closest('[data-send-owl]')) track('contact_click', { contact_method: 'owl_form' });
+
     const link = target.closest('a[href]');
-    if (!link) {
-      if (target.closest('[data-send-owl]')) track('contact_click', { contact_method: 'owl_form' });
-      return;
-    }
+    if (!link) return;
 
     const href = link.href;
     let url;
@@ -40,7 +39,7 @@
 
     if (url.protocol === 'mailto:') {
       track('contact_click', { contact_method: 'email', link_text: linkText });
-    } else if (/drive\\.google\\.com/.test(url.hostname) && /resume/i.test(linkText)) {
+    } else if ((url.hostname === 'drive.google.com' || url.hostname.endsWith('.drive.google.com')) && /resume/i.test(linkText)) {
       track('resume_download', { link_url: url.href, link_text: linkText });
     } else if (url.hostname === 'github.com' || url.hostname.endsWith('.github.com')) {
       track('github_click', { link_url: url.href, link_text: linkText });
