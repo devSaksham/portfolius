@@ -5,7 +5,6 @@
   const GA4 = 'G-2DYT0EG502';
   const LIVE = ['sakshamagrawal.me', 'www.sakshamagrawal.me', 'devsaksham.github.io'];
   if (!LIVE.includes(location.hostname)) return;
-  if (navigator.globalPrivacyControl || navigator.doNotTrack === '1') return; // visitors who asked not to be tracked
 
   const add = src => document.head.append(Object.assign(document.createElement('script'), { src, async: true }));
   const pendingEvents = [];
