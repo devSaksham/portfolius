@@ -3,7 +3,7 @@
    (CausalFunnel, my own click tracker, is loaded separately in the HTML.) */
 (() => {
   const GA4 = 'G-LL0V19D2WF';
-  const LIVE = ['devsaksham.github.io']; // add your own domain here when the site moves to it
+  const LIVE = ['sakshamagrawal.me', 'www.sakshamagrawal.me', 'devsaksham.github.io'];
   if (!LIVE.includes(location.hostname)) return;
   if (navigator.globalPrivacyControl || navigator.doNotTrack === '1') return; // visitors who asked not to be tracked
 
